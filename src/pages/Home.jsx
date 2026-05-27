@@ -166,7 +166,7 @@ const Home = () => {
           <div className="welcome-popup">
             <div className="popup-overlay" onClick={closePopup}></div>
             <div className="popup-content">
-              <button className="popup-close" onClick={closePopup}>
+              <button className="home-popup-close" onClick={closePopup}>
                 <i className="fas fa-times"></i>
               </button>
               
@@ -174,19 +174,20 @@ const Home = () => {
                 <div className="popup-info">
                   <h2><i className="fas fa-cricket-ball"></i> CDS Champions Trophy</h2>
                   <p className="popup-subtitle">WELCOME TO CDS CRICKET LEAGUE</p>
+                   <p className="popup-subtitle2">Tutorial video for player registration</p>
                   
                   <div className="popup-features">
                     <div className="feature-item">
-                      <i className="fas fa-trophy"></i>
+                      <i className="fas fa-id-card"></i>
                       <div>
                         <h4> Fill Personal Details</h4>
-                        <p> Enter your name, age, contact number and other required personal
-          details in the registration form.</p>
+                        <p> Enter your <strong>name, age, contact number , profile link and other required personal</strong> details in the registration form.</p>
+
                       </div>
                     </div>
                     
                     <div className="feature-item">
-                      <i className="fas fa-calendar-day"></i>
+                        <i className="fas fa-qrcode"></i>
                       <div>
                         <h4> Proceed to Payment</h4>
                         <p>Click on the <strong>Next / Payment</strong> button to continue.
@@ -195,27 +196,27 @@ const Home = () => {
                     </div>
                     
                     <div className="feature-item">
-                      <i className="fas fa-users"></i>
+                      <i className="fas fa-qrcode"></i>
                       <div>
                         <h4> Pay Registration Fee</h4>
-                        <p> Scan the QR code or use the provided UPI ID to pay</p>
+                        <p> Scan the <strong>QR code</strong> or use the provided <strong>UPI ID</strong> to pay</p>
                       </div>
                     </div>
                     <div className="feature-item">
-                      <i className="fas fa-medal"></i>
+                        <i className="fas fa-receipt"></i>
                       <div>
                         <h4> Enter Payment Details</h4>
                         <p> After payment, enter the <strong>UTR Number</strong> and upload
-          the payment screenshot for verification.</p>
+          the <strong>payment screenshot </strong> for verification.</p>
                       </div>
                     </div>
 
                      <div className="feature-item">
-                      <i className="fas fa-users"></i>
+                       <i className="fas fa-check-circle"></i>
                       <div>
                         <h4>  Submit & Register</h4>
                         <p>Click on the <strong>Submit</strong> button to complete your
-          registration successfully.</p>
+         <strong> registration successfully.</strong></p>
                       </div>
                     </div>
                   </div>
@@ -296,13 +297,13 @@ const Home = () => {
             <h1>JOIN THE CRICKET REVOLUTION AT YAMUNANAGAR GROUND</h1>
             <p>Experience professional cricket at our state-of-the-art stadium. Daily matches with certified umpires, advanced facilities, and a perfect platform to showcase your talent. Register now for CDS Cricket Premier League 2025-26!</p>
             
-            <button 
+            {/* <button 
               className="register-btn" 
               onClick={() => navigate("/playerRegistration")}
             >
               Register As Player
             </button>
-            
+             */}
             <button onClick={() => navigate("/login")} className="register-btn">
               Login
             </button>

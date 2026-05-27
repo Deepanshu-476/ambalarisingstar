@@ -51,7 +51,7 @@
   }
 }
 
-.popup-close {
+.home-popup-close {
   position: absolute;
   top: 15px;
   right: 15px;
@@ -70,7 +70,7 @@
   justify-content: center;
 }
 
-.popup-close:hover {
+.home-popup-close:hover {
   background: #e0b82e;
   transform: rotate(90deg);
 }
@@ -83,7 +83,6 @@
 }
 
 .popup-info {
-  padding: 10px;
   color: white;
   background: rgba(10, 46, 10, 0.95);
 }
@@ -94,15 +93,26 @@
   margin-bottom: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
 .popup-subtitle {
   color: #90ee90;
   font-size: 16px;
-  margin-bottom: 30px;
+  margin-bottom: 1px;
   font-weight: 500;
+  text-align: center;
+  margin-left: 15px;
 }
+
+.popup-subtitle2 {
+  color: #90ee90;
+  font-size: 19px;
+  font-weight: 500;
+ margin-left: 15px;
+} 
+
 
 .popup-features {
   margin: 30px 0;
@@ -224,7 +234,7 @@
 
 .video-container video {
   width: 100%;
-  height: 80%;
+  height: 100%;
   object-fit: contain;
   display: block;
 }
@@ -262,30 +272,84 @@
 
 /* Responsive Design for Popup */
 @media (max-width: 768px) {
+ 
   .popup-grid {
     grid-template-columns: 1fr;
     min-height: auto;
-    height: 580px;
+    height: 700px;
   }
   
   .popup-content {
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: 70%;
+    max-height: 80vh;
+    padding: 0;
+    margin: 0;
+    
+  }
+
+  .home-popup-close{
+    top: 5px;
+    right: 5px;  
+    font-size: 30px!important;
+    line-height: 10px !important;
+    height: 30px !important;
+    width: 40px !important;
+  }
+  .popup-info{
+    padding-top: 20px;
+   
+  }
+
+     .popup-info h2 {
+        font-size: 18px;
+    }
+
+  .popup-subtitle {
+   display: none ;
+  } 
+
+  .popup-subtitle2 {
+  color: #90ee90;
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+  .video-container video{
+    height: 100%;
+     object-fit: inherit;
+  }
+  
+  .popup-register-btn, .popup-explore-btn {
+   display: none;
   }
 
   .video-container {
-    min-height: 300px;
+   height: 100%;
+    object-fit: cover; 
   }
   
   .popup-actions {
     flex-direction: column;
   }
   
-  .popup-info h2 {
-    font-size: 24px;
+  
+
+  .feature-item{
+    display: none;
+  }
+
+  .popup-footer{
+    display: none 
+    ;
   }
 }
+
+@media (max-width: 768px) {
+  .popup-content {
+    width: 90%;
+    max-height: 90vh;
+  }
+} 
 
 /* Existing Home.css Styles */
 :root {
@@ -423,6 +487,11 @@ body:not(.video-modal-open) {
   display: inline-block;
   text-transform: uppercase;
   letter-spacing: 1px;
+};
+
+.register-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(201, 162, 39, 0.3);
 }
 
 .register-btn:hover {
@@ -602,8 +671,17 @@ body:not(.video-modal-open) {
 }
 
 .slot-name {
-  color: #d3d3d3;
+  color: #3c3e16;
   font-size: 0.95rem;
+}
+
+.slot-time {
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #334155;
 }
 
 /* Stadium Section */
@@ -788,6 +866,7 @@ body:not(.video-modal-open) {
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-top: 20px;
 }
 
 .open-gallery-btn:hover {
@@ -886,13 +965,13 @@ body:not(.video-modal-open) {
 /* Responsive Design */
 @media (max-width: 768px) {
   .hero {
-    margin-top: 1px;
-    height: 80vh;
+    height: 90vh;
     margin-top: 50px;
   }
   
   .hero h1 {
-    font-size: 2.2rem;
+    font-size: 2.0rem;
+    padding-top: 80px;
   }
 
   .main-title {
@@ -942,7 +1021,7 @@ body:not(.video-modal-open) {
   
   .cta-register-btn {
     padding: 0.9rem 1.8rem;
-    font-size: 1.1rem;
+    font-size: 1.rem;
     font-weight: 900;
   }
   
@@ -950,22 +1029,18 @@ body:not(.video-modal-open) {
     max-width: 95%;
     max-height: 70vh;
   }
+ 
   
-  .close-popup-btn {
-    top: -55px;
-    right: 5px;
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 480px) {
   .header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 8px 10px;
+   
+
   }
 
   /* LEFT → LOGO */
@@ -1011,15 +1086,16 @@ body:not(.video-modal-open) {
   /* RIGHT → BUTTON */
   .login-btn {
     padding: 9px !important;
-    font-size: 0.1rem;
+    font-size: 0.5rem;
     text-align: center;
     width: 70px;
     height: 30px;
-    margin-bottom: 20px;
+    
   }
 
   .hero h1 {
     font-size: 1.8rem;
+    padding: 20px;
   }
   
   .hero p {
@@ -1028,7 +1104,7 @@ body:not(.video-modal-open) {
   
   .register-btn, .cta-register-btn, .login-btn {
     padding: 0.8rem 1.5rem;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
   
   .section-title {
@@ -1039,11 +1115,8 @@ body:not(.video-modal-open) {
     font-size: 1.1rem;
     white-space: normal;
   }
+
   
-  .popup-close-hint {
-    font-size: 0.7rem;
-    bottom: -35px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1053,12 +1126,24 @@ body:not(.video-modal-open) {
     border-radius: 5px;
   }
   
-  .close-popup-btn {
-    top: -45px;
-    width: 35px;
-    height: 35px;
-    font-size: 0.9rem;
+}
+
+@media (max-width: 380px) {
+
+
+  .hero h1 {
+    font-size: 1.5rem;
+    padding: 15px;  
+
   }
+
+  .hero p {
+    font-size: 0.9rem;
+}
+  .register-btn, .cta-register-btn, .login-btn {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.8rem;
+}
 }
 
 
