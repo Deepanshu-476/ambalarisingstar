@@ -583,14 +583,55 @@ const Home = () => {
             </div>
           </section>
 
-          {/* Registration CTA */}
+          {/* Registration CTA - UPDATED WITH TWO BUTTONS SIDE BY SIDE */}
           <section className="registration-cta reveal" id="register">
             <h2>READY TO PLAY PROFESSIONAL CRICKET?</h2>
             <p>Don't miss your chance to be part of the most exciting cricket tournament in Yamunanagar. Register now and secure your spot in the CDS Cricket Premier League 2025-26. Limited slots available for each time session!</p>
             
-            <button className="cta-register-btn" onClick={() => navigate("/playerRegistration")}>
-              <i className="fas fa-cricket"></i> REGISTER FOR CDS CRICKET LEAGUE
-            </button>
+            <div className="cta-buttons-container" style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '20px',
+              flexWrap: 'wrap'
+            }}>
+              <button 
+                className="cta-register-btn" 
+                onClick={() => navigate("/playerRegistration")}
+                style={{
+                  marginTop: 0
+                }}
+              >
+                <i className="fas fa-cricket"></i> REGISTER FOR CDS CRICKET LEAGUE
+              </button>
+              
+              <button 
+                className="cta-junior-btn" 
+                onClick={() => navigate("/junior-premier-league")}
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 2rem',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  borderRadius: '50px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
+                  marginTop: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(245, 158, 11, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.3)';
+                }}
+              >
+                <i className="fas fa-users"></i> REGISTER FOR JUNIOR PREMIER LEAGUE
+              </button>
+            </div>
             
             <div style={{ marginTop: '2rem', color: 'var(--cricket-cream)', fontSize: '0.9rem' }}>
               <p><i className="fas fa-phone"></i> Contact for Registration: +91 98765 43210</p>

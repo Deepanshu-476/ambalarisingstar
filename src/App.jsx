@@ -11,11 +11,12 @@ import SlotsPage from './pages/Slots/SlotsPage.jsx';
 import CaptainDashboard from "./pages/captain/CaptainDashboard";
 import ChampionsTrophy from "./pages/captain/ChampionsTrophy";
 
-
 import Booking from "./pages/booking/Booking.jsx";
 import Gallery from "./pages/Gallery";
 import CricketPlayerRegistration from "./pages/PlayerRegistration.jsx"
+import JuniorPremierLeagueAmbala from "./pages/JuniorPremierLeagueAmbala.jsx"  // ✅ NEW IMPORT
 import AdminDashboardd from "./pages/AdminDashboard.jsx"
+
 // protected route
 import ProtectedRoute from "./pages/components/ProtectedRoute";
 import  ContactUs  from "./pages/contact/contact_us.jsx";
@@ -30,7 +31,6 @@ function App() {
   return (
     <>
       {/* Header har page par */}
-
 
       <Routes>
         {/* Public Pages */}
@@ -48,10 +48,10 @@ function App() {
         <Route path="/ChampionsTrophy" element={<ChampionsTrophy />} />
         <Route path="/book-slots" element={<Booking />} />
 
-
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
         <Route path="/playerRegistration" element={<CricketPlayerRegistration/>} />
+        <Route path="/junior-premier-league" element={<JuniorPremierLeagueAmbala />} />  {/* ✅ NEW ROUTE */}
         <Route path="/contact" element={< ContactUs/>}/>
         <Route path="/privacy" element={< PrivacyPolicy/>}/>
         <Route path="/refund" element={< RefundPolicy/>}/>

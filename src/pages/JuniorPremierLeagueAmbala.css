@@ -1,0 +1,912 @@
+/* ============================================
+   JUNIOR PREMIER LEAGUE AMBALA - STYLES
+   Fully Responsive Mobile First Design
+   ============================================ */
+
+/* ---------- Keyframes Animations ---------- */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ---------- Base Container ---------- */
+.jpl-app-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  min-height: 100vh;
+  padding: 20px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ---------- Registration Container ---------- */
+.jpl-registration-container {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1000px;
+  overflow: hidden;
+}
+
+/* ---------- Header Section ---------- */
+.jpl-header-section {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+  color: white;
+  padding: 40px;
+  text-align: center;
+  position: relative;
+}
+
+.jpl-dashboard-button {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+  white-space: nowrap;
+}
+
+.jpl-dashboard-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+}
+
+.jpl-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.jpl-cricket-logo {
+  font-size: 48px;
+  animation: bounce 2s infinite;
+}
+
+.jpl-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.jpl-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-top: 10px;
+}
+
+/* ---------- Step Indicator ---------- */
+.jpl-step-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 20px 40px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.jpl-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+  position: relative;
+  min-width: 150px;
+}
+
+.jpl-step.active {
+  color: #059669;
+}
+
+.jpl-step.completed {
+  color: #10b981;
+}
+
+.jpl-step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e2e8f0;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.jpl-step-number.active {
+  background: #059669;
+  color: white;
+}
+
+.jpl-step-number.completed {
+  background: #10b981;
+  color: white;
+}
+
+.jpl-step-line {
+  width: 40px;
+  height: 3px;
+  background: #e2e8f0;
+  position: absolute;
+  right: -45px;
+}
+
+.jpl-step-line.completed {
+  background: #10b981;
+}
+
+/* ---------- Content Wrapper ---------- */
+.jpl-content-wrapper {
+  padding: 40px;
+}
+
+/* ---------- Form Section ---------- */
+.jpl-form-section {
+  background: #f8fafc;
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid #e2e8f0;
+}
+
+.jpl-registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Form Groups ---------- */
+.jpl-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jpl-label {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.jpl-required {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+.jpl-optional {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-left: 4px;
+  font-weight: normal;
+}
+
+.jpl-input, .jpl-select {
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  width: 100%;
+}
+
+.jpl-input:focus, .jpl-select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.jpl-input.error {
+  border-color: #ef4444;
+}
+
+.jpl-help-text {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.jpl-error-text {
+  color: #ef4444;
+  font-size: 0.8rem;
+}
+
+/* ---------- Category Badge ---------- */
+.jpl-category-badge {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid #10b981;
+}
+
+/* ---------- Document Section ---------- */
+.jpl-document-section {
+  background: #f0fdf4;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+  margin-top: 10px;
+}
+
+.jpl-document-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #065f46;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- File Upload ---------- */
+.jpl-file-upload-container {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 25px;
+  text-align: center;
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.jpl-file-upload-container:hover {
+  border-color: #059669;
+  background-color: #ecfdf5;
+}
+
+.jpl-file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.jpl-upload-icon {
+  font-size: 32px;
+  color: #059669;
+}
+
+.jpl-upload-text {
+  font-weight: 600;
+  color: #475569;
+  font-size: 1rem;
+}
+
+.jpl-upload-subtext {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.jpl-file-input {
+  display: none;
+}
+
+.jpl-preview-container {
+  margin-top: 15px;
+  position: relative;
+  display: inline-block;
+}
+
+.jpl-preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+.jpl-remove-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.jpl-remove-button:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* ---------- Payment Section ---------- */
+.jpl-payment-section {
+  text-align: center;
+}
+
+.jpl-amount-badge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.jpl-qr-container {
+  max-width: 400px;
+  margin: 0 auto 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e2e8f0;
+}
+
+.jpl-qr-container h3 {
+  color: #1e293b;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.jpl-qr-image {
+  width: 350px;
+  height: 450px;
+  display: block;
+  border-radius: 10px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.jpl-payment-instructions {
+  background: #f0f9ff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #bae6fd;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.jpl-payment-instructions h4 {
+  color: #0369a1;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.jpl-payment-instructions ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.jpl-payment-instructions li {
+  padding: 6px 0;
+  padding-left: 25px;
+  position: relative;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.jpl-payment-instructions li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+}
+
+/* ---------- Info Box ---------- */
+.jpl-info-box {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.jpl-info-title {
+  color: #d97706;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+}
+
+.jpl-info-box p {
+  color: #92400e;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------- Buttons ---------- */
+.jpl-button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  gap: 20px;
+}
+
+.jpl-nav-button {
+  padding: 14px 30px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.jpl-nav-button.back {
+  background: #f1f5f9;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+}
+
+.jpl-nav-button.back:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(100, 116, 139, 0.2);
+}
+
+.jpl-nav-button.next {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+}
+
+.jpl-nav-button.next:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(5, 150, 105, 0.4);
+}
+
+.jpl-submit-btn {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.jpl-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(5, 150, 105, 0.4);
+}
+
+.jpl-submit-btn:disabled, .jpl-nav-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Status Messages ---------- */
+.jpl-status-message {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.5s ease;
+}
+
+.jpl-status-message.success {
+  background: #d1fae5;
+  border: 2px solid #10b981;
+}
+
+.jpl-status-message.error {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+}
+
+.jpl-status-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.jpl-status-content {
+  flex: 1;
+}
+
+.jpl-status-content h4 {
+  margin-bottom: 5px;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.jpl-status-content p {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ---------- Modal ---------- */
+.jpl-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 15px;
+}
+
+.jpl-modal-box {
+  background: #fff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  animation: slideIn 0.4s ease;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.jpl-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.jpl-close-btn:hover {
+  color: #ef4444;
+}
+
+/* ---------- Spinner ---------- */
+.jpl-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ============================================ */
+
+/* Tablet and Mobile Devices */
+@media (max-width: 768px) {
+  /* Base adjustments */
+  .jpl-app-container {
+    padding: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  
+  .jpl-registration-container {
+    border-radius: 15px;
+    margin: 0;
+  }
+  
+  /* Header */
+  .jpl-header-section {
+    padding: 20px 15px;
+    padding-top: 60px;
+  }
+  
+  .jpl-dashboard-button {
+    left: 15px;
+    top: 15px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+  
+  .jpl-cricket-logo {
+    font-size: 36px;
+  }
+  
+  .jpl-title {
+    font-size: 1.5rem;
+  }
+  
+  .jpl-subtitle {
+    font-size: 0.9rem;
+    padding: 0 10px;
+  }
+  
+  /* Step Indicator */
+  .jpl-step-indicator {
+    gap: 20px;
+    padding: 15px 20px;
+  }
+  
+  .jpl-step {
+    gap: 6px;
+    font-size: 0.85rem;
+    min-width: auto;
+  }
+  
+  .jpl-step-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+  
+  .jpl-step-line {
+    display: none !important;
+  }
+  
+  /* Content */
+  .jpl-content-wrapper {
+    padding: 20px 15px;
+  }
+  
+  .jpl-form-section {
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .jpl-registration-form {
+    gap: 15px;
+  }
+  
+  /* Form Elements */
+  .jpl-input, .jpl-select {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+  
+  .jpl-label {
+    font-size: 0.85rem;
+  }
+  
+  /* Document Section */
+  .jpl-document-section {
+    padding: 15px;
+  }
+  
+  .jpl-document-title {
+    font-size: 1rem;
+  }
+  
+  /* File Upload */
+  .jpl-file-upload-container {
+    padding: 20px;
+  }
+  
+  .jpl-upload-icon {
+    font-size: 28px;
+  }
+  
+  .jpl-upload-text {
+    font-size: 0.9rem;
+  }
+  
+  .jpl-upload-subtext {
+    font-size: 0.8rem;
+  }
+  
+  /* Payment Section */
+  .jpl-amount-badge {
+    font-size: 1.1rem;
+    padding: 8px 16px;
+    width: 90%;
+  }
+  
+  .jpl-qr-container {
+    padding: 15px;
+  }
+  
+  .jpl-qr-container h3 {
+    font-size: 1.1rem;
+  }
+  
+  .jpl-qr-image {
+    width: 300px;
+    height: auto;
+  }
+  
+  .jpl-payment-instructions {
+    padding: 15px;
+  }
+  
+  .jpl-payment-instructions h4 {
+    font-size: 1rem;
+  }
+  
+  .jpl-payment-instructions li {
+    font-size: 0.85rem;
+  }
+  
+  /* Buttons */
+  .jpl-button-container {
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+  }
+  
+  .jpl-nav-button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    min-width: auto;
+  }
+  
+  .jpl-submit-btn {
+    width: 100%;
+    padding: 14px 30px;
+    font-size: 1rem;
+  }
+  
+  /* Status Messages */
+  .jpl-status-message {
+    padding: 15px;
+    flex-direction: column;
+  }
+  
+  .jpl-status-icon {
+    font-size: 20px;
+  }
+  
+  .jpl-status-content h4 {
+    font-size: 1rem;
+  }
+  
+  .jpl-status-content p {
+    font-size: 0.85rem;
+  }
+  
+  /* Modal */
+  .jpl-modal-box {
+    padding: 20px;
+    border-radius: 14px;
+    max-width: 90%;
+  }
+  
+  .jpl-close-btn {
+    top: 10px;
+    right: 12px;
+    font-size: 18px;
+  }
+  
+  /* Info Box */
+  .jpl-info-title {
+    font-size: 0.9rem;
+  }
+  
+  .jpl-info-box p {
+    font-size: 0.8rem;
+  }
+  
+  /* Preview Image */
+  .jpl-preview-image {
+    max-height: 150px;
+  }
+}
+
+/* Small Mobile Devices (up to 480px) */
+@media (max-width: 480px) {
+  .jpl-title {
+    font-size: 1.2rem;
+  }
+  
+  .jpl-cricket-logo {
+    font-size: 28px;
+  }
+  
+  .jpl-step {
+    font-size: 0.75rem;
+  }
+  
+  .jpl-step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+  
+  .jpl-qr-image {
+    width: 250px;
+  }
+  
+  .jpl-form-section {
+    padding: 15px;
+  }
+  
+  .jpl-file-upload-container {
+    padding: 15px;
+  }
+}
+
+/* Landscape Mode */
+@media (max-width: 768px) and (orientation: landscape) {
+  .jpl-app-container {
+    padding: 10px;
+  }
+  
+  .jpl-header-section {
+    padding: 15px;
+    padding-top: 50px;
+  }
+  
+  .jpl-step-indicator {
+    padding: 10px 20px;
+  }
+  
+  .jpl-content-wrapper {
+    padding: 15px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .jpl-dashboard-button,
+  .jpl-nav-button,
+  .jpl-submit-btn,
+  .jpl-modal-overlay {
+    display: none;
+  }
+  
+  .jpl-registration-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
