@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API, { IMAGE_BASE_URL } from '../api/axios';
 import { useNavigate } from "react-router-dom";
-import QR from "../assets/qrcode.jpeg";
+import QR from "../assets/ambala.jpeg";
 import './JuniorPremierLeagueAmbala.css';
 
 const JuniorPremierLeagueAmbala = () => {
@@ -124,14 +124,14 @@ const JuniorPremierLeagueAmbala = () => {
       if (response.data.success) {
         setPaymentInfo({
           qrCodeUrl: response.data.qrCodeUrl || null,
-          upiId: response.data.upiId || '9896529577@ptsbi',
+          upiId: response.data.upiId || '9896474454@ptsbi',
           registrationFee: response.data.registrationFee || 500
         });
       } else {
         // Fallback values
         setPaymentInfo({
           qrCodeUrl: null,
-          upiId: '9896529577@ptsbi',
+          upiId: '9896474454@ptsbi',
           registrationFee: 500
         });
       }
@@ -140,7 +140,7 @@ const JuniorPremierLeagueAmbala = () => {
       // Fallback values on error
       setPaymentInfo({
         qrCodeUrl: null,
-        upiId: '9896529577@ptsbi',
+        upiId: '9896474454@ptsbi',
         registrationFee: 500
       });
     }
@@ -544,9 +544,9 @@ const JuniorPremierLeagueAmbala = () => {
           
           <div className="jpl-logo-container">
             <div className="jpl-cricket-logo">🏏</div>
-            <h1 className="jpl-title">Junior Premier League Ambala Season 1</h1>
+            <h1 className="jpl-title">Ambala Rising Star Cricket League</h1>
           </div>
-          <p className="jpl-subtitle">Complete registration in 2 simple steps</p>
+          <p className="jpl-subtitle">Season 1 | Complete registration in 2 simple steps</p>
         </div>
 
         <div className="jpl-step-indicator">
@@ -778,7 +778,7 @@ const JuniorPremierLeagueAmbala = () => {
                     />
                   )}
                   
-                  <h3>Or<br />Pay on UPI:<br />{paymentInfo.upiId}</h3>
+                  <h3>Or<br />Pay on UPI:<br />9896474454@ptsbi</h3>
                   
                   <div className="jpl-payment-instructions">
                     <h4>How to Pay:</h4>

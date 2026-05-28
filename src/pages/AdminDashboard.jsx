@@ -4,16 +4,26 @@ import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   // State variables
-  const [allPlayers, setAllPlayers] = useState([]); // सभी players का main array
+  const [allPlayers, setAllPlayers] = useState([]); // CDS Champions Trophy players
+  const [jplPlayers, setJplPlayers] = useState([]); // Junior Premier League players
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [verifying, setVerifying] = useState(false);
   const [showAllPlayersView, setShowAllPlayersView] = useState(false);
+  const [playerType, setPlayerType] = useState('cds'); // 'cds' or 'jpl'
   
   // Dashboard stats
   const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    verified: 0,
+    rejected: 0,
+    totalCollection: 0
+  });
+  
+  const [jplStats, setJplStats] = useState({
     total: 0,
     pending: 0,
     verified: 0,
@@ -55,44 +65,147 @@ const AdminDashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage] = useState(20);
   
-  // Stats cards data
+  // Get current players based on playerType
+  const currentPlayers = playerType === 'cds' ? allPlayers : jplPlayers;
+  
+  // Stats cards data based on player type
   const statsCards = [
     { 
       title: 'Total Registrations', 
-      value: stats.total, 
+      value: playerType === 'cds' ? stats.total : jplStats.total, 
       icon: '📋',
       color: '#667eea',
       description: 'All registered players'
     },
     { 
       title: 'Pending', 
-      value: stats.pending, 
+      value: playerType === 'cds' ? stats.pending : jplStats.pending, 
       icon: '⏳',
       color: '#ed8936',
       description: 'Awaiting verification'
     },
     { 
       title: 'Verified', 
-      value: stats.verified, 
+      value: playerType === 'cds' ? stats.verified : jplStats.verified, 
       icon: '✅',
       color: '#48bb78',
       description: 'Payment confirmed'
     },
     { 
       title: 'Rejected', 
-      value: stats.rejected, 
+      value: playerType === 'cds' ? stats.rejected : jplStats.rejected, 
       icon: '❌',
       color: '#f56565',
       description: 'Payment rejected'
     },
     { 
       title: 'Total Collection', 
-      value: `₹${stats.totalCollection}`, 
+      value: `₹${playerType === 'cds' ? stats.totalCollection : jplStats.totalCollection}`, 
       icon: '💰',
       color: '#9f7aea',
       description: 'Total registration fees'
     }
   ];
+
+  // Fetch CDS Champions Trophy players
+  const fetchCDSPlayers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await API.get(`/player/all-players`, {
+        params: {
+          page: 1,
+          limit: 1000,
+          status: 'all'
+        }
+      });
+      
+      if (response.data.success) {
+        setAllPlayers(response.data.data);
+        
+        // Calculate CDS stats
+        const cdsPlayers = response.data.data;
+        const pending = cdsPlayers.filter(p => p.paymentStatus === 'pending').length;
+        const verified = cdsPlayers.filter(p => p.paymentStatus === 'verified').length;
+        const rejected = cdsPlayers.filter(p => p.paymentStatus === 'rejected').length;
+        
+        setStats({
+          total: cdsPlayers.length,
+          pending: pending,
+          verified: verified,
+          rejected: rejected,
+          totalCollection: verified * 500
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching CDS players:', err);
+      setError('Failed to fetch CDS players');
+      useMockData('cds');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch Junior Premier League players
+  const fetchJPLPlayers = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await API.get(`/jpl-player/all`, {
+        params: {
+          page: 1,
+          limit: 1000
+        }
+      });
+      
+      if (response.data.success) {
+        setJplPlayers(response.data.data);
+        
+        // Calculate JPL stats
+        const jplPlayersData = response.data.data;
+        const pending = jplPlayersData.filter(p => p.paymentStatus === 'pending').length;
+        const verified = jplPlayersData.filter(p => p.paymentStatus === 'verified').length;
+        const rejected = jplPlayersData.filter(p => p.paymentStatus === 'rejected').length;
+        
+        setJplStats({
+          total: jplPlayersData.length,
+          pending: pending,
+          verified: verified,
+          rejected: rejected,
+          totalCollection: verified * 500
+        });
+        
+        // Set detailed stats for JPL
+        const roleStats = {};
+        jplPlayersData.forEach(player => {
+          if (player.role) {
+            roleStats[player.role] = (roleStats[player.role] || 0) + 1;
+          }
+        });
+        
+        const categoryStats = {};
+        jplPlayersData.forEach(player => {
+          if (player.ageCategory) {
+            categoryStats[player.ageCategory] = (categoryStats[player.ageCategory] || 0) + 1;
+          }
+        });
+        
+        setDetailedStats({
+          roleStats: Object.entries(roleStats).map(([name, count]) => ({ _id: name, count })),
+          categoryStats: Object.entries(categoryStats).map(([name, count]) => ({ _id: name, count })),
+          monthlyStats: []
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching JPL players:', err);
+      setError('Failed to fetch JPL players');
+      useMockData('jpl');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch dashboard stats
   const fetchDashboardStats = async () => {
@@ -120,73 +233,9 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fetch all players for both views
-  const fetchAllPlayers = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      // Fetch dashboard stats
-      await fetchDashboardStats();
-      
-      // Fetch all players without pagination for verification view
-      const response = await API.get(`/player/all-players`, {
-        params: {
-          page: 1,
-          limit: 1000, // Large limit to get all players
-          status: 'all'
-        }
-      });
-      
-      if (response.data.success) {
-        setAllPlayers(response.data.data);
-      }
-      
-    } catch (err) {
-      console.error('Error fetching all players:', err.response || err.message);
-      setError('Failed to fetch players. Using demo data.');
-      useMockData();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch players with filters for all players view
-  const fetchFilteredPlayers = async (page = 1) => {
-    try {
-      setLoading(true);
-      
-      const params = {
-        page,
-        limit: itemsPerPage
-      };
-      
-      // Add filters if they are set
-      if (filters.status !== 'all') params.status = filters.status;
-      if (filters.role !== 'all') params.role = filters.role;
-      if (filters.category !== 'all') params.category = filters.category;
-      if (filters.search) params.search = filters.search;
-      if (filters.startDate) params.startDate = filters.startDate;
-      if (filters.endDate) params.endDate = filters.endDate;
-      
-      const response = await API.get(`/player/search`, { params });
-      
-      if (response.data.success) {
-        setAllPlayers(response.data.data);
-        setCurrentPage(response.data.pagination?.page || 1);
-        setTotalPages(response.data.pagination?.pages || 1);
-      }
-    } catch (error) {
-      console.error('Error fetching filtered players:', error);
-      setError('Failed to fetch filtered players');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Filter players based on active tab and filters
   const getFilteredPlayers = useMemo(() => {
-    let filtered = [...allPlayers];
+    let filtered = [...currentPlayers];
     
     // Apply active tab filter (only for verification view)
     if (!showAllPlayersView && activeTab !== 'all') {
@@ -205,21 +254,22 @@ const AdminDashboard = () => {
     }
     
     return filtered;
-  }, [allPlayers, activeTab, showAllPlayersView, filters.search]);
+  }, [currentPlayers, activeTab, showAllPlayersView, filters.search]);
 
   // Helper function to generate mock players
-  const generateMockPlayersWithStatus = (status, count) => {
+  const generateMockPlayersWithStatus = (status, count, tournament = 'cds') => {
     const names = ['Aarav Sharma', 'Vivaan Patel', 'Aditya Singh', 'Vihaan Kumar', 'Arjun Gupta'];
     const roles = ['Batsman', 'Bowler', 'Allrounder', 'Wicket Keeper'];
-    const categories = ['Junior', 'Senior', 'Veteran'];
+    const categories = tournament === 'cds' ? ['Junior', 'Senior', 'Veteran'] : ['Under 16', '16-22 Years', '22-35 Years', '35-40 Years'];
     
     return Array.from({ length: count }, (_, i) => ({
-      _id: `mock_${status}_${i + 1}`,
+      _id: `${tournament}_mock_${status}_${i + 1}`,
       name: names[i % names.length],
-      email: `${status}${i + 1}@example.com`,
+      email: `${tournament}_${status}${i + 1}@example.com`,
       phone: `98765${String(10000 + i).slice(1)}`,
       role: roles[i % roles.length],
       category: categories[i % categories.length],
+      ageCategory: categories[i % categories.length],
       utrNumber: `UTR${status.toUpperCase().slice(0, 3)}${String(1000 + i).slice(1)}`,
       paymentStatus: status,
       paymentMethod: 'qr',
@@ -229,73 +279,116 @@ const AdminDashboard = () => {
       verifiedBy: status !== 'pending' ? 'Admin' : null,
       profileLink: `https://example.com/profile/${status}${i + 1}`,
       teamPreference: i % 2 === 0 ? 'Team A' : 'Team B',
-      notes: status === 'rejected' ? 'Payment not received' : null
+      notes: status === 'rejected' ? 'Payment not received' : null,
+      tournament: tournament === 'cds' ? 'CDS Champions Trophy' : 'Junior Premier League Ambala Section 1',
+      aadharNumber: `1234${String(5678 + i).slice(0, 8)}`
     }));
   };
 
   // Use mock data for development
-  const useMockData = () => {
-    const mockPlayers = [
-      ...generateMockPlayersWithStatus('pending', 8),
-      ...generateMockPlayersWithStatus('verified', 15),
-      ...generateMockPlayersWithStatus('rejected', 4)
-    ];
-    
-    setAllPlayers(mockPlayers);
-    
-    // Calculate stats
-    setStats({
-      total: mockPlayers.length,
-      pending: mockPlayers.filter(p => p.paymentStatus === 'pending').length,
-      verified: mockPlayers.filter(p => p.paymentStatus === 'verified').length,
-      rejected: mockPlayers.filter(p => p.paymentStatus === 'rejected').length,
-      totalCollection: mockPlayers.filter(p => p.paymentStatus === 'verified').length * 500
+  const useMockData = (type) => {
+    if (type === 'cds') {
+      const mockPlayers = [
+        ...generateMockPlayersWithStatus('pending', 8, 'cds'),
+        ...generateMockPlayersWithStatus('verified', 15, 'cds'),
+        ...generateMockPlayersWithStatus('rejected', 4, 'cds')
+      ];
+      
+      setAllPlayers(mockPlayers);
+      
+      setStats({
+        total: mockPlayers.length,
+        pending: mockPlayers.filter(p => p.paymentStatus === 'pending').length,
+        verified: mockPlayers.filter(p => p.paymentStatus === 'verified').length,
+        rejected: mockPlayers.filter(p => p.paymentStatus === 'rejected').length,
+        totalCollection: mockPlayers.filter(p => p.paymentStatus === 'verified').length * 500
+      });
+    } else {
+      const mockPlayers = [
+        ...generateMockPlayersWithStatus('pending', 6, 'jpl'),
+        ...generateMockPlayersWithStatus('verified', 10, 'jpl'),
+        ...generateMockPlayersWithStatus('rejected', 2, 'jpl')
+      ];
+      
+      setJplPlayers(mockPlayers);
+      
+      setJplStats({
+        total: mockPlayers.length,
+        pending: mockPlayers.filter(p => p.paymentStatus === 'pending').length,
+        verified: mockPlayers.filter(p => p.paymentStatus === 'verified').length,
+        rejected: mockPlayers.filter(p => p.paymentStatus === 'rejected').length,
+        totalCollection: mockPlayers.filter(p => p.paymentStatus === 'verified').length * 500
+      });
+      
+      // Mock detailed stats for JPL
+      const roleStats = {};
+      const categoryStats = {};
+      mockPlayers.forEach(player => {
+        if (player.role) {
+          roleStats[player.role] = (roleStats[player.role] || 0) + 1;
+        }
+        if (player.ageCategory) {
+          categoryStats[player.ageCategory] = (categoryStats[player.ageCategory] || 0) + 1;
+        }
+      });
+      
+      setDetailedStats({
+        roleStats: Object.entries(roleStats).map(([name, count]) => ({ _id: name, count })),
+        categoryStats: Object.entries(categoryStats).map(([name, count]) => ({ _id: name, count })),
+        monthlyStats: []
+      });
+    }
+  };
+
+  // Handle tournament type change
+  const handleTournamentChange = (type) => {
+    setPlayerType(type);
+    setActiveTab('all');
+    setShowAllPlayersView(false);
+    setFilters({
+      status: 'all',
+      role: 'all',
+      category: 'all',
+      search: '',
+      startDate: '',
+      endDate: ''
     });
+    setSearchResults(null);
+    setSearchTerm('');
     
-    // Mock detailed stats
-    setDetailedStats({
-      roleStats: [
-        { _id: 'Batsman', count: 10, verified: 7, pending: 2, rejected: 1 },
-        { _id: 'Bowler', count: 8, verified: 5, pending: 2, rejected: 1 },
-        { _id: 'Allrounder', count: 6, verified: 4, pending: 2, rejected: 0 },
-        { _id: 'Wicket Keeper', count: 3, verified: 2, pending: 1, rejected: 0 }
-      ],
-      categoryStats: [
-        { _id: 'Junior', count: 5 },
-        { _id: 'Senior', count: 18 },
-        { _id: 'Veteran', count: 4 }
-      ],
-      monthlyStats: [
-        { month: '2024-01', count: 8 },
-        { month: '2024-02', count: 12 },
-        { month: '2024-03', count: 7 }
-      ]
-    });
+    if (type === 'cds') {
+      fetchCDSPlayers();
+    } else {
+      fetchJPLPlayers();
+    }
   };
 
   // Handle role click - filter by role
   const handleRoleClick = (role) => {
-    // Switch to All Players view
     setShowAllPlayersView(true);
-    
-    // Set role filter
     setFilters(prev => ({
       ...prev,
       role: role,
-      status: 'all', // Reset other filters
+      status: 'all',
       category: 'all',
       search: ''
     }));
-    
-    // Reset page
     setCurrentPage(1);
-    
-    // Fetch players with role filter
-    setTimeout(() => {
-      fetchFilteredPlayers(1);
-    }, 100);
-    
     setSuccess(`Filtered by role: ${role}`);
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  // Handle category click for JPL
+  const handleCategoryClick = (category) => {
+    setShowAllPlayersView(true);
+    setFilters(prev => ({
+      ...prev,
+      category: category,
+      role: 'all',
+      status: 'all'
+    }));
+    setCurrentPage(1);
+    setSuccess(`Filtered by category: ${category}`);
     setTimeout(() => setSuccess(''), 3000);
   };
 
@@ -309,52 +402,50 @@ const AdminDashboard = () => {
     try {
       setVerifying(true);
       
-      // Skip API call for mock data
-      if (selectedPlayer._id && selectedPlayer._id.startsWith('mock_')) {
-        // Update mock data locally
-        const updatedPlayer = {
-          ...selectedPlayer,
-          paymentStatus: verificationStatus,
-          verifiedBy: verifiedBy.trim(),
-          verificationDate: new Date().toISOString(),
-          notes: verificationNotes || null
-        };
-        
-        // Update players array
-        setAllPlayers(prevPlayers => 
-          prevPlayers.map(player => 
-            player._id === selectedPlayer._id ? updatedPlayer : player
-          )
-        );
-        
-        setSuccess(`Payment ${verificationStatus} successfully (mock data)`);
+      const endpoint = playerType === 'cds' ? '/player/verify-payment' : '/jpl-player/update';
+      const updateData = {
+        playerId: selectedPlayer._id,
+        paymentStatus: verificationStatus,
+        verifiedBy: verifiedBy.trim(),
+        notes: verificationNotes
+      };
+      
+      let response;
+      
+      if (playerType === 'cds') {
+        response = await API.post(endpoint, updateData);
       } else {
-        // Real API call
-        const response = await API.post(`/player/verify-payment`, {
-          playerId: selectedPlayer._id,
-          status: verificationStatus,
-          verifiedBy: verifiedBy.trim(),
+        response = await API.put(`${endpoint}/${selectedPlayer._id}`, {
+          paymentStatus: verificationStatus,
+          verificationStatus: verificationStatus === 'verified' ? 'verified' : 'pending',
           notes: verificationNotes
         });
-
-        if (response.data.success) {
-          setSuccess(`Payment ${verificationStatus} successfully`);
-          
-          // Update local state
-          const updatedPlayer = response.data.data;
-          
+      }
+      
+      if (response.data.success) {
+        setSuccess(`Payment ${verificationStatus} successfully`);
+        
+        // Update local state
+        const updatedPlayer = response.data.data || { ...selectedPlayer, paymentStatus: verificationStatus, verifiedBy: verifiedBy.trim(), verificationDate: new Date().toISOString() };
+        
+        if (playerType === 'cds') {
           setAllPlayers(prevPlayers => 
             prevPlayers.map(player => 
               player._id === selectedPlayer._id ? updatedPlayer : player
             )
           );
-          
-          // Refresh stats
-          await fetchDashboardStats();
+          await fetchCDSPlayers();
         } else {
-          setError(response.data.message || 'Verification failed');
-          return;
+          setJplPlayers(prevPlayers => 
+            prevPlayers.map(player => 
+              player._id === selectedPlayer._id ? updatedPlayer : player
+            )
+          );
+          await fetchJPLPlayers();
         }
+      } else {
+        setError(response.data.message || 'Verification failed');
+        return;
       }
       
       setShowVerifyModal(false);
@@ -392,7 +483,8 @@ const AdminDashboard = () => {
         params.utrNumber = searchTerm.trim();
       }
       
-      const response = await API.get(`/player/check-status`, { params });
+      const endpoint = playerType === 'cds' ? '/player/check-status' : `/jpl-player/search`;
+      const response = await API.get(endpoint, { params });
       
       if (response.data.success) {
         setSearchResults(response.data.data);
@@ -404,11 +496,7 @@ const AdminDashboard = () => {
       
     } catch (err) {
       console.error('Error checking status:', err);
-      if (err.response?.status === 404) {
-        setError('No registration found with provided details');
-      } else {
-        setError('Failed to check status. Please try again.');
-      }
+      setError('No registration found with provided details');
     } finally {
       setSearching(false);
     }
@@ -416,7 +504,8 @@ const AdminDashboard = () => {
 
   // Handle advanced filter search
   const handleAdvancedSearch = () => {
-    fetchFilteredPlayers(1);
+    // For mock data, just filter locally
+    setShowAllPlayersView(true);
   };
 
   // Clear all filters
@@ -431,10 +520,9 @@ const AdminDashboard = () => {
     });
     setCurrentPage(1);
     setShowAllPlayersView(false);
-    fetchAllPlayers();
   };
 
-  // Export data to CSV (CURRENT VIEW/FILTERED DATA)
+  // Export data to CSV
   const exportToCSV = () => {
     const playersToExport = getFilteredPlayers;
     
@@ -443,7 +531,7 @@ const AdminDashboard = () => {
       return;
     }
     
-    const headers = ['Name', 'Email', 'Phone', 'Role', 'Category', 'UTR Number', 'Payment Status', 'Registered Date', 'Verified Date', 'Verified By', 'Team Preference'];
+    const headers = ['Name', 'Email', 'Phone', 'Role', 'Category', 'UTR Number', 'Payment Status', 'Registered Date', 'Verified Date', 'Verified By'];
     const csvData = [
       headers.join(','),
       ...playersToExport.map(player => [
@@ -451,13 +539,12 @@ const AdminDashboard = () => {
         `"${player.email || 'N/A'}"`,
         `"${player.phone || 'N/A'}"`,
         `"${player.role || 'N/A'}"`,
-        `"${player.category || 'N/A'}"`,
+        `"${player.ageCategory || player.category || 'N/A'}"`,
         `"${player.utrNumber || 'N/A'}"`,
         `"${player.paymentStatus || 'N/A'}"`,
         `"${player.createdAt ? new Date(player.createdAt).toLocaleDateString('en-IN') : 'N/A'}"`,
         `"${player.verificationDate ? new Date(player.verificationDate).toLocaleDateString('en-IN') : 'Not Verified'}"`,
-        `"${player.verifiedBy || 'N/A'}"`,
-        `"${player.teamPreference || 'Not Specified'}"`
+        `"${player.verifiedBy || 'N/A'}"`
       ].join(','))
     ].join('\n');
 
@@ -465,7 +552,7 @@ const AdminDashboard = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cds-premier-league-${showAllPlayersView ? 'all' : activeTab}-players-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `${playerType === 'cds' ? 'cds-champions-trophy' : 'junior-premier-league'}-${showAllPlayersView ? 'all' : activeTab}-players-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
     
@@ -476,35 +563,27 @@ const AdminDashboard = () => {
   // Export to Excel via API
   const exportToExcel = async () => {
     try {
-      // For verification view with tabs, use current filter
       const params = new URLSearchParams();
       
       if (showAllPlayersView) {
-        // Use advanced filters for all players view
         if (filters.status !== 'all') params.append('status', filters.status);
         if (filters.role !== 'all') params.append('role', filters.role);
         if (filters.category !== 'all') params.append('category', filters.category);
         if (filters.search) params.append('search', filters.search);
-        if (filters.startDate) params.append('startDate', filters.startDate);
-        if (filters.endDate) params.append('endDate', filters.endDate);
-      } else {
-        // For verification view, use active tab
-        if (activeTab !== 'all') {
-          params.append('status', activeTab);
-        }
+      } else if (activeTab !== 'all') {
+        params.append('status', activeTab);
       }
       
-      // Make API call to export endpoint
-      const response = await API.get(`/player/export-players`, {
+      const endpoint = playerType === 'cds' ? '/player/export-players' : '/jpl-player/export';
+      const response = await API.get(endpoint, {
         params: params,
         responseType: 'blob'
       });
       
-      // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `cds-premier-league-${showAllPlayersView ? 'all' : activeTab}-players-${new Date().toISOString().split('T')[0]}.xlsx`);
+      link.setAttribute('download', `${playerType === 'cds' ? 'cds-champions-trophy' : 'junior-premier-league'}-players-${new Date().toISOString().split('T')[0]}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -514,7 +593,6 @@ const AdminDashboard = () => {
       
     } catch (error) {
       console.error('Error exporting to Excel:', error);
-      // Fallback to CSV if Excel export fails
       exportToCSV();
     }
   };
@@ -558,9 +636,6 @@ const AdminDashboard = () => {
   // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    if (showAllPlayersView) {
-      fetchFilteredPlayers(page);
-    }
   };
 
   // Handle filter change
@@ -573,12 +648,6 @@ const AdminDashboard = () => {
     setShowAllPlayersView(isAllPlayersView);
     setCurrentPage(1);
     setActiveTab('all');
-    
-    if (isAllPlayersView) {
-      fetchFilteredPlayers(1);
-    } else {
-      fetchAllPlayers();
-    }
   };
 
   // Handle tab change
@@ -588,18 +657,9 @@ const AdminDashboard = () => {
 
   // Initial data fetch
   useEffect(() => {
-    fetchAllPlayers();
+    fetchCDSPlayers();
+    fetchJPLPlayers();
   }, []);
-
-  // Handle filters in all players view
-  useEffect(() => {
-    if (showAllPlayersView) {
-      const timer = setTimeout(() => {
-        fetchFilteredPlayers(1);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [filters.status, filters.role, filters.category, filters.search]);
 
   return (
     <div className="admin-dashboard">
@@ -609,9 +669,9 @@ const AdminDashboard = () => {
           <div className="header-title">
             <h1>
               <span className="header-icon">🏏</span>
-              CDS Champions Trophy
+              CDS Champions Trophy & Junior Premier League
             </h1>
-            <p className="header-subtitle">Admin Dashboard - Complete Player Management System</p>
+            <p className="header-subtitle">Admin Dashboard - Complete Player Management System for Both Tournaments</p>
           </div>
           <div className="admin-profile">
             <div className="admin-avatar">
@@ -621,6 +681,29 @@ const AdminDashboard = () => {
               <div className="admin-name">Administrator</div>
               <div className="admin-role">Full System Access</div>
             </div>
+          </div>
+        </div>
+
+        {/* Tournament Selector Buttons - NEW SECTION */}
+        <div className="tournament-selector-section">
+          <div className="tournament-buttons">
+            <button
+              className={`tournament-btn ${playerType === 'cds' ? 'active' : ''}`}
+              onClick={() => handleTournamentChange('cds')}
+            >
+              <span className="tournament-icon">🏆</span>
+              CDS Champions Trophy
+              <span className="tournament-count">({stats.total} players)</span>
+            </button>
+            
+            <button
+              className={`tournament-btn ${playerType === 'jpl' ? 'active' : ''}`}
+              onClick={() => handleTournamentChange('jpl')}
+            >
+              <span className="tournament-icon">🏏</span>
+              Junior Premier League Ambala
+              <span className="tournament-count">({jplStats.total} players)</span>
+            </button>
           </div>
         </div>
 
@@ -648,7 +731,7 @@ const AdminDashboard = () => {
             <div className="detailed-stats-card">
               <h3 className="section-title">
                 <span className="section-icon">📊</span>
-                Detailed Statistics
+                Detailed Statistics - {playerType === 'cds' ? 'CDS Champions Trophy' : 'Junior Premier League'}
               </h3>
               
               <div className="stats-details-grid">
@@ -668,9 +751,6 @@ const AdminDashboard = () => {
                             <span className="role-label">{role._id}</span>
                             <span className="click-hint">(click to filter)</span>
                           </div>
-                          <div className="stat-item-subtext">
-                            Total: {role.count} | ✓ {role.verified || 0} | ⏳ {role.pending || 0} | ✗ {role.rejected || 0}
-                          </div>
                         </div>
                         <div className="stat-item-count">
                           {role.count}
@@ -682,24 +762,15 @@ const AdminDashboard = () => {
                 
                 {/* Category Distribution */}
                 <div className="stat-detail-group">
-                  <h4 className="stat-group-title">Category Distribution</h4>
+                  <h4 className="stat-group-title">
+                    {playerType === 'cds' ? 'Category Distribution' : 'Age Category Distribution'}
+                  </h4>
                   <div className="stat-items-list">
                     {detailedStats.categoryStats.map(category => (
                       <div 
                         key={category._id} 
                         className="stat-item clickable-category"
-                        onClick={() => {
-                          setShowAllPlayersView(true);
-                          setFilters(prev => ({
-                            ...prev,
-                            category: category._id,
-                            role: 'all',
-                            status: 'all'
-                          }));
-                          setTimeout(() => fetchFilteredPlayers(1), 100);
-                          setSuccess(`Filtered by category: ${category._id}`);
-                          setTimeout(() => setSuccess(''), 3000);
-                        }}
+                        onClick={() => handleCategoryClick(category._id)}
                         title={`Click to filter by ${category._id}`}
                       >
                         <div className="stat-item-label">
@@ -774,7 +845,7 @@ const AdminDashboard = () => {
               
               <button
                 className="action-btn refresh-btn"
-                onClick={showAllPlayersView ? () => fetchFilteredPlayers(1) : fetchAllPlayers}
+                onClick={() => playerType === 'cds' ? fetchCDSPlayers() : fetchJPLPlayers()}
                 disabled={loading}
               >
                 <span className="btn-icon">🔄</span>
@@ -819,16 +890,31 @@ const AdminDashboard = () => {
                 </div>
                 
                 <div className="filter-group">
-                  <label className="filter-label">Category</label>
+                  <label className="filter-label">
+                    {playerType === 'cds' ? 'Category' : 'Age Category'}
+                  </label>
                   <select
                     className="filter-select"
                     value={filters.category}
                     onChange={(e) => handleFilterChange('category', e.target.value)}
                   >
-                    <option value="all">All Categories</option>
-                    <option value="Junior">Junior</option>
-                    <option value="Senior">Senior</option>
-                    <option value="Veteran">Veteran</option>
+                    <option value="all">
+                      {playerType === 'cds' ? 'All Categories' : 'All Age Categories'}
+                    </option>
+                    {playerType === 'cds' ? (
+                      <>
+                        <option value="Junior">Junior</option>
+                        <option value="Senior">Senior</option>
+                        <option value="Veteran">Veteran</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="Under 16">Under 16</option>
+                        <option value="16-22 Years">16-22 Years</option>
+                        <option value="22-35 Years">22-35 Years</option>
+                        <option value="35-40 Years">35-40 Years</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>
@@ -946,7 +1032,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="result-field">
                     <div className="field-label">Registered</div>
-                    <div className="field-value">{formatDate(searchResults.registeredAt)}</div>
+                    <div className="field-value">{formatDate(searchResults.createdAt)}</div>
                   </div>
                   {searchResults.verifiedBy && (
                     <div className="result-field">
@@ -971,7 +1057,7 @@ const AdminDashboard = () => {
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                   {tab !== 'all' && (
                     <span className="tab-count">
-                      ({stats[tab]})
+                      ({playerType === 'cds' ? stats[tab] : jplStats[tab]})
                     </span>
                   )}
                 </button>
@@ -990,7 +1076,7 @@ const AdminDashboard = () => {
               {/* Table Header */}
               <div className="table-header">
                 <h3 className="table-title">
-                  {showAllPlayersView ? 'All Registered Players' : 'Players for Verification'}
+                  {playerType === 'cds' ? 'CDS Champions Trophy Players' : 'Junior Premier League Players'}
                   <span className="table-subtitle">
                     ({getFilteredPlayers.length} players)
                   </span>
@@ -1022,7 +1108,7 @@ const AdminDashboard = () => {
                     )}
                     {filters.category !== 'all' && (
                       <span className="filter-tag">
-                        Category: {filters.category}
+                        {playerType === 'cds' ? 'Category' : 'Age Category'}: {filters.category}
                         <button 
                           className="filter-remove"
                           onClick={() => handleFilterChange('category', 'all')}
@@ -1044,30 +1130,6 @@ const AdminDashboard = () => {
                     )}
                   </div>
                 )}
-                
-                {showAllPlayersView && totalPages > 1 && (
-                  <div className="pagination-controls">
-                    <button
-                      className="pagination-btn prev-btn"
-                      disabled={currentPage === 1}
-                      onClick={() => handlePageChange(currentPage - 1)}
-                    >
-                      ← Previous
-                    </button>
-                    
-                    <span className="page-info">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    
-                    <button
-                      className="pagination-btn next-btn"
-                      disabled={currentPage === totalPages}
-                      onClick={() => handlePageChange(currentPage + 1)}
-                    >
-                      Next →
-                    </button>
-                  </div>
-                )}
               </div>
 
               {/* Table */}
@@ -1075,7 +1137,7 @@ const AdminDashboard = () => {
                 <div className="empty-state">
                   <div className="empty-icon">📋</div>
                   <h3>No players found</h3>
-                  <p>No {showAllPlayersView ? 'players' : activeTab === 'all' ? '' : activeTab} registrations found</p>
+                  <p>No {playerType === 'cds' ? 'CDS' : 'JPL'} players found</p>
                   {showAllPlayersView && (
                     <button
                       className="clear-filters-btn"
@@ -1094,7 +1156,9 @@ const AdminDashboard = () => {
                         <th className="table-header-cell">UTR & Payment</th>
                         
                         {showAllPlayersView && (
-                          <th className="table-header-cell">Category & Role</th>
+                          <th className="table-header-cell">
+                            {playerType === 'cds' ? 'Category & Role' : 'Age Category & Role'}
+                          </th>
                         )}
                         
                         <th className="table-header-cell">Registration Timeline</th>
@@ -1110,7 +1174,6 @@ const AdminDashboard = () => {
                             className="table-cell player-details-cell"
                             data-label="Player Details"
                           >
-                            
                             <div className="player-name">
                               {player.name}
                             </div>
@@ -1120,6 +1183,13 @@ const AdminDashboard = () => {
                             <div className="player-info">
                               <span className="info-icon">📱</span> {player.phone}
                             </div>
+                            
+                            {/* Aadhar Number for JPL */}
+                            {playerType === 'jpl' && player.aadharNumber && (
+                              <div className="player-info">
+                                <span className="info-icon">🪪</span> Aadhar: {player.aadharNumber}
+                              </div>
+                            )}
 
                             {/* PAYMENT PROOF IMAGE */}
                             <div className="payment-proof-container">
@@ -1157,12 +1227,6 @@ const AdminDashboard = () => {
                                 Profile Link
                               </a>
                             )}
-                            {player.teamPreference && (
-                              <div className="team-preference">
-                                <span className="preference-icon">🏏</span>
-                                Prefers: {player.teamPreference}
-                              </div>
-                            )}
                           </td>
                           
                           {/* UTR & Payment Column */}
@@ -1196,15 +1260,19 @@ const AdminDashboard = () => {
                             )}
                           </td>
                           
-                          {/* Category & Role Column (only for All Players view) */}
+                          {/* Category & Role Column */}
                           {showAllPlayersView && (
                             <td 
                               className="table-cell category-cell"
                               data-label="Role & Category"
                             >
                               <div className="category-group">
-                                <div className="field-label-small">Category</div>
-                                <div className="field-value">{player.category || 'Senior'}</div>
+                                <div className="field-label-small">
+                                  {playerType === 'cds' ? 'Category' : 'Age Category'}
+                                </div>
+                                <div className="field-value">
+                                  {player.ageCategory || player.category || 'N/A'}
+                                </div>
                               </div>
                               <div className="role-group">
                                 <div className="field-label-small">Role</div>
@@ -1251,7 +1319,7 @@ const AdminDashboard = () => {
                                     email: player.email,
                                     utrNumber: player.utrNumber,
                                     paymentStatus: player.paymentStatus,
-                                    registeredAt: player.createdAt,
+                                    createdAt: player.createdAt,
                                     verifiedBy: player.verifiedBy
                                   });
                                 }}
@@ -1274,10 +1342,10 @@ const AdminDashboard = () => {
         {/* Footer */}
         <div className="dashboard-footer">
           <div className="footer-left">
-            CDS Premier League Admin Dashboard • {new Date().toLocaleDateString('en-IN')}
+            {playerType === 'cds' ? 'CDS Premier League' : 'Junior Premier League Ambala'} Admin Dashboard • {new Date().toLocaleDateString('en-IN')}
           </div>
           <div className="footer-right">
-            Total: {stats.total} players • Verified: {stats.verified} • Pending: {stats.pending}
+            Total: {playerType === 'cds' ? stats.total : jplStats.total} players • Verified: {playerType === 'cds' ? stats.verified : jplStats.verified} • Pending: {playerType === 'cds' ? stats.pending : jplStats.pending}
           </div>
         </div>
       </div>
@@ -1287,7 +1355,7 @@ const AdminDashboard = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h2 className="modal-title">
-              Verify Payment
+              Verify Payment - {selectedPlayer?.name}
             </h2>
             
             <div className="modal-body">
@@ -1318,7 +1386,7 @@ const AdminDashboard = () => {
               <div className="modal-section">
                 <div className="modal-field-label">UTR Number</div>
                 <div className="modal-utr-display">
-                  {selectedPlayer?.utrNumber || '2334455675646523'}
+                  {selectedPlayer?.utrNumber}
                 </div>
               </div>
               
@@ -1326,7 +1394,7 @@ const AdminDashboard = () => {
                 <div className="modal-field-label">Current Status</div>
                 <div className="current-status-display">
                   <span className="modal-status-badge pending">
-                    {selectedPlayer?.paymentStatus || 'pending'}
+                    {selectedPlayer?.paymentStatus}
                   </span>
                 </div>
               </div>
