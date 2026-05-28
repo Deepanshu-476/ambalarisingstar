@@ -51,7 +51,7 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
         <Route path="/playerRegistration" element={<CricketPlayerRegistration/>} />
-        <Route path="/junior-premier-league" element={<JuniorPremierLeagueAmbala />} />  {/* ✅ NEW ROUTE */}
+        <Route path="/Ambala-Rising-Star" element={<JuniorPremierLeagueAmbala />} />  {/* ✅ NEW ROUTE */}
         <Route path="/contact" element={< ContactUs/>}/>
         <Route path="/privacy" element={< PrivacyPolicy/>}/>
         <Route path="/refund" element={< RefundPolicy/>}/>

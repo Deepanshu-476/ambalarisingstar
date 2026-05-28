@@ -606,7 +606,7 @@ const Home = () => {
               
               <button 
                 className="cta-junior-btn" 
-                onClick={() => navigate("/junior-premier-league")}
+                onClick={() => navigate("/Ambala-Rising-Star")}
                 style={{
                   background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   color: 'white',
@@ -629,7 +629,7 @@ const Home = () => {
                   e.currentTarget.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.3)';
                 }}
               >
-                <i className="fas fa-users"></i> REGISTER FOR Ambala Rising Star Cricket League
+                <i className="fas fa-users"></i> Register For Ambala Rising Star Cricket League
               </button>
             </div>
             
