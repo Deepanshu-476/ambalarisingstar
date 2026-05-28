@@ -30,8 +30,6 @@ const JuniorPremierLeagueAmbala = () => {
   
   const [paymentScreenshot, setPaymentScreenshot] = useState(null);
   const [screenshotPreview, setScreenshotPreview] = useState(null);
-  const [passportPhoto, setPassportPhoto] = useState(null);
-  const [passportPreview, setPassportPreview] = useState(null);
   const [aadharImage, setAadharImage] = useState(null);
   const [aadharPreview, setAadharPreview] = useState(null);
   const [aadharNumber, setAadharNumber] = useState('');
@@ -45,7 +43,66 @@ const JuniorPremierLeagueAmbala = () => {
     "Batsman (WC)"
   ];
 
-  // Age category mapping
+  // Compress image to 500KB
+  const compressImage = (file, maxSizeKB = 500) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Calculate new dimensions while maintaining aspect ratio
+          const maxDimension = 1500;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = (height * maxDimension) / width;
+              width = maxDimension;
+            } else {
+              width = (width * maxDimension) / height;
+              height = maxDimension;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Start with quality 0.9 and reduce until file size is under maxSizeKB
+          let quality = 0.9;
+          const tryCompress = (currentQuality) => {
+            canvas.toBlob(
+              (blob) => {
+                if (blob.size <= maxSizeKB * 1024 || currentQuality <= 0.1) {
+                  // Convert blob to file
+                  const compressedFile = new File([blob], file.name, {
+                    type: 'image/jpeg',
+                    lastModified: Date.now(),
+                  });
+                  resolve(compressedFile);
+                } else {
+                  tryCompress(currentQuality - 0.1);
+                }
+              },
+              'image/jpeg',
+              currentQuality
+            );
+          };
+          
+          tryCompress(quality);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
+  // Age category mapping with Under-16 restriction (10-16 years only)
   const getAgeCategory = (dob) => {
     if (!dob) return '';
     
@@ -58,11 +115,12 @@ const JuniorPremierLeagueAmbala = () => {
       age--;
     }
     
-    if (age <= 16) return 'Under 16';
-    if (age <= 22) return '16-22 Years';
-    if (age <= 35) return '22-35 Years';
-    if (age <= 40) return '35-40 Years';
-    return '40+ Years';
+    // Under 16 category: Only ages 10-16 allowed
+    if (age >= 10 && age <= 16) return 'Under 16';
+    if (age > 16 && age <= 22) return '16-22 Years';
+    if (age > 22 && age <= 35) return '22-35 Years';
+    if (age > 35 && age <= 40) return '35-40 Years';
+    return 'Not Eligible';
   };
 
   // Update age category when DOB changes
@@ -115,7 +173,7 @@ const JuniorPremierLeagueAmbala = () => {
     };
   }, []);
 
-  // ✅ Fetch payment details from JPL API
+  // Fetch payment details from JPL API
   const fetchPaymentInfo = async () => {
     try {
       const response = await API.get('/jpl-player/payment-details');
@@ -154,48 +212,8 @@ const JuniorPremierLeagueAmbala = () => {
     }));
   };
 
-  // Handle Passport Photo upload
-  const handlePassportPhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-      setRegistrationStatus({
-        type: 'error',
-        title: 'Invalid File Type',
-        message: 'Please upload only JPG or PNG files for passport photo'
-      });
-      return;
-    }
-
-    const maxSize = 2 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setRegistrationStatus({
-        type: 'error',
-        title: 'File Too Large',
-        message: 'Passport photo must be less than 2MB'
-      });
-      return;
-    }
-
-    setPassportPhoto(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPassportPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemovePassportPhoto = () => {
-    setPassportPhoto(null);
-    setPassportPreview(null);
-    const fileInput = document.getElementById('passportPhoto');
-    if (fileInput) fileInput.value = '';
-  };
-
-  // Handle Aadhar Image upload
-  const handleAadharImageChange = (e) => {
+  // Handle Aadhar Image upload with compression
+  const handleAadharImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -209,22 +227,43 @@ const JuniorPremierLeagueAmbala = () => {
       return;
     }
 
-    const maxSize = 3 * 1024 * 1024;
+    const maxSize = 10 * 1024 * 1024; // Allow up to 10MB original file
     if (file.size > maxSize) {
       setRegistrationStatus({
         type: 'error',
         title: 'File Too Large',
-        message: 'Aadhar card image must be less than 3MB'
+        message: 'Aadhar card image must be less than 10MB before compression'
       });
       return;
     }
 
-    setAadharImage(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setAadharPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setLoading(true);
+    try {
+      // Compress image to 500KB
+      const compressedFile = await compressImage(file, 500);
+      setAadharImage(compressedFile);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAadharPreview(reader.result);
+        setRegistrationStatus({
+          type: 'success',
+          title: 'Image Compressed',
+          message: `Image compressed successfully from ${(file.size / 1024).toFixed(1)}KB to ${(compressedFile.size / 1024).toFixed(1)}KB`
+        });
+        setTimeout(() => setRegistrationStatus(null), 3000);
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error('Compression error:', error);
+      setRegistrationStatus({
+        type: 'error',
+        title: 'Compression Failed',
+        message: 'Failed to compress image. Please try with a different image.'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveAadharImage = () => {
@@ -304,19 +343,32 @@ const JuniorPremierLeagueAmbala = () => {
       throw new Error('Date of Birth cannot be in the future');
     }
     
-    const maxAgeDate = new Date();
-    maxAgeDate.setFullYear(today.getFullYear() - 40);
-    if (dobDate < maxAgeDate) {
+    // Calculate age
+    let age = today.getFullYear() - dobDate.getFullYear();
+    const monthDiff = today.getMonth() - dobDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+      age--;
+    }
+    
+    // Check minimum age (10 years for Under-16 category)
+    if (age < 10) {
+      throw new Error('Player must be at least 10 years old to participate');
+    }
+    
+    // Check maximum age (40 years)
+    if (age > 40) {
       throw new Error('Player age cannot exceed 40 years for Junior Premier League');
+    }
+    
+    // Special check for Under-16 category
+    if (age <= 16 && age < 10) {
+      throw new Error('Under-16 players must be between 10-16 years old');
     }
     
     return true;
   };
 
   const validateDocuments = () => {
-    if (!passportPhoto) {
-      throw new Error('Passport size photo is required');
-    }
     if (!aadharImage) {
       throw new Error('Aadhar card image is required');
     }
@@ -357,6 +409,12 @@ const JuniorPremierLeagueAmbala = () => {
     }
     
     validateDOB(dob);
+    
+    // Check if age category is eligible
+    const category = getAgeCategory(dob);
+    if (category === 'Not Eligible') {
+      throw new Error('Player age does not meet the eligibility criteria for any category');
+    }
     
     if (!profileLink.trim()) {
       throw new Error('CricHeroes profile link is required');
@@ -409,7 +467,7 @@ const JuniorPremierLeagueAmbala = () => {
     }
   };
 
-  // ✅ Submit to JPL API
+  // Submit to JPL API
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -440,10 +498,7 @@ const JuniorPremierLeagueAmbala = () => {
       submitData.append('paymentStatus', 'pending');
       submitData.append('verificationStatus', 'pending');
       
-      // Add all images
-      if (passportPhoto) {
-        submitData.append('passportPhoto', passportPhoto);
-      }
+      // Add images (Aadhar card only, passport photo removed)
       if (aadharImage) {
         submitData.append('aadharImage', aadharImage);
       }
@@ -453,7 +508,7 @@ const JuniorPremierLeagueAmbala = () => {
 
       console.log('Submitting JPL registration...');
       
-      // ✅ Updated API endpoint for JPL
+      // API endpoint for JPL
       const response = await API.post('/jpl-player/register', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -485,8 +540,6 @@ const JuniorPremierLeagueAmbala = () => {
           utrNumber: '',
           ageCategory: ''
         });
-        setPassportPhoto(null);
-        setPassportPreview(null);
         setAadharImage(null);
         setAadharPreview(null);
         setAadharNumber('');
@@ -612,51 +665,20 @@ const JuniorPremierLeagueAmbala = () => {
                     onChange={handleChange}
                     className="jpl-input"
                     max={new Date().toISOString().split('T')[0]}
+                    min={new Date(new Date().setFullYear(new Date().getFullYear() - 40)).toISOString().split('T')[0]}
                   />
-                  <small className="jpl-help-text">Player must be under 40 years of age</small>
                 </div>
 
                 {formData.ageCategory && (
-                  <div className="jpl-category-badge">
+                  <div className={`jpl-category-badge ${formData.ageCategory === 'Under 16' ? 'under16' : ''}`}>
                     🏷️ Age Category: {formData.ageCategory}
+                    {formData.ageCategory === 'Under 16' && ' (10-16 years only)'}
                   </div>
                 )}
 
                 <div className="jpl-document-section">
                   <div className="jpl-document-title">
                     <span>📄</span> Required Documents
-                  </div>
-
-                  <div className="jpl-form-group">
-                    <label className="jpl-label">Passport Size Photo <span className="jpl-required">*</span></label>
-                    <div className="jpl-file-upload-container">
-                      <label className="jpl-file-upload-label">
-                        <div className="jpl-upload-icon">📸</div>
-                        <div>
-                          <div className="jpl-upload-text">
-                            {passportPhoto ? 'Change Passport Photo' : 'Upload Passport Size Photo'}
-                          </div>
-                          <div className="jpl-upload-subtext">
-                            {passportPhoto ? `Selected: ${passportPhoto.name}` : 'Click to upload your recent passport size photo'}
-                          </div>
-                          <div className="jpl-upload-subtext">Supports: JPG, PNG (Max 2MB)</div>
-                        </div>
-                        <input
-                          type="file"
-                          id="passportPhoto"
-                          accept="image/jpeg,image/jpg,image/png"
-                          onChange={handlePassportPhotoChange}
-                          className="jpl-file-input"
-                        />
-                      </label>
-                      
-                      {passportPreview && (
-                        <div className="jpl-preview-container">
-                          <img src={passportPreview} alt="Passport preview" className="jpl-preview-image" />
-                          <button type="button" onClick={handleRemovePassportPhoto} className="jpl-remove-button">×</button>
-                        </div>
-                      )}
-                    </div>
                   </div>
 
                   <div className="jpl-form-group">
@@ -683,9 +705,9 @@ const JuniorPremierLeagueAmbala = () => {
                             {aadharImage ? 'Change Aadhar Card' : 'Upload Aadhar Card Image'}
                           </div>
                           <div className="jpl-upload-subtext">
-                            {aadharImage ? `Selected: ${aadharImage.name}` : 'Click to upload front side of Aadhar card'}
+                            {aadharImage ? `Selected: ${aadharImage.name} (${(aadharImage.size / 1024).toFixed(1)}KB)` : 'Click to upload front side of Aadhar card'}
                           </div>
-                          <div className="jpl-upload-subtext">Supports: JPG, PNG, WebP (Max 3MB)</div>
+                          <div className="jpl-upload-subtext">Auto-compressed to 500KB • Supports: JPG, PNG, WebP</div>
                         </div>
                         <input
                           type="file"
@@ -693,6 +715,7 @@ const JuniorPremierLeagueAmbala = () => {
                           accept="image/jpeg,image/jpg,image/png,image/webp"
                           onChange={handleAadharImageChange}
                           className="jpl-file-input"
+                          disabled={loading}
                         />
                       </label>
                       
@@ -703,7 +726,7 @@ const JuniorPremierLeagueAmbala = () => {
                         </div>
                       )}
                     </div>
-                    <small className="jpl-help-text">Upload clear image of your Aadhar card for verification</small>
+                    <small className="jpl-help-text">Upload clear image of your Aadhar card (automatically compressed to 500KB)</small>
                   </div>
                 </div>
 
@@ -732,6 +755,16 @@ const JuniorPremierLeagueAmbala = () => {
                 {registrationStatus && registrationStatus.type === 'error' && (
                   <div className="jpl-status-message error">
                     <div className="jpl-status-icon">❌</div>
+                    <div className="jpl-status-content">
+                      <h4>{registrationStatus.title}</h4>
+                      <p>{registrationStatus.message}</p>
+                    </div>
+                  </div>
+                )}
+
+                {registrationStatus && registrationStatus.type === 'success' && (
+                  <div className="jpl-status-message success" style={{ marginTop: '10px' }}>
+                    <div className="jpl-status-icon">✅</div>
                     <div className="jpl-status-content">
                       <h4>{registrationStatus.title}</h4>
                       <p>{registrationStatus.message}</p>
@@ -847,9 +880,10 @@ const JuniorPremierLeagueAmbala = () => {
                     </div>
                     <p>
                       • Age Category: {formData.ageCategory || 'Will be auto-assigned based on DOB'}<br />
-                      • Passport photo and Aadhar card are mandatory for verification<br />
+                      • <strong>Under 16 Category: Only players aged 10-16 years are eligible</strong><br />
+                      • Aadhar card is mandatory for verification<br />
                       • Keep your UTR number safe for future reference.<br />
-                      • Age categories: Under 16, 16-22 Years, 22-35 Years, 35-40 Years
+                      • Age categories: Under 16 (10-16 yrs), 16-22 Years, 22-35 Years, 35-40 Years
                     </p>
                   </div>
 

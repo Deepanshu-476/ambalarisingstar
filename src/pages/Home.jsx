@@ -594,7 +594,7 @@ const Home = () => {
               gap: '20px',
               flexWrap: 'wrap'
             }}>
-              <button 
+              {/* <button 
                 className="cta-register-btn" 
                 onClick={() => navigate("/playerRegistration")}
                 style={{
@@ -602,7 +602,7 @@ const Home = () => {
                 }}
               >
                 <i className="fas fa-cricket"></i> REGISTER FOR CDS CRICKET LEAGUE
-              </button>
+              </button> */}
               
               <button 
                 className="cta-junior-btn" 
@@ -629,7 +629,7 @@ const Home = () => {
                   e.currentTarget.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.3)';
                 }}
               >
-                <i className="fas fa-users"></i> REGISTER FOR JUNIOR PREMIER LEAGUE
+                <i className="fas fa-users"></i> REGISTER FOR Ambala Rising Star Cricket League
               </button>
             </div>
             
