@@ -68,42 +68,96 @@ const AdminDashboard = () => {
   // Get current players based on playerType
   const currentPlayers = playerType === 'cds' ? allPlayers : jplPlayers;
   
-  // Stats cards data based on player type
+  // Handle stats card click to filter players
+  const handleStatsCardClick = (statusType) => {
+    // Switch to All Players view
+    setShowAllPlayersView(true);
+    
+    // Set filter based on which card was clicked
+    if (statusType === 'total') {
+      setFilters(prev => ({ ...prev, status: 'all' }));
+      setActiveTab('all');
+      setSuccess('Showing all players');
+    } else if (statusType === 'pending') {
+      setFilters(prev => ({ ...prev, status: 'pending' }));
+      setActiveTab('pending');
+      setSuccess('Showing pending verification players');
+    } else if (statusType === 'verified') {
+      setFilters(prev => ({ ...prev, status: 'verified' }));
+      setActiveTab('verified');
+      setSuccess('Showing verified players');
+    } else if (statusType === 'rejected') {
+      setFilters(prev => ({ ...prev, status: 'rejected' }));
+      setActiveTab('rejected');
+      setSuccess('Showing rejected players');
+    } else if (statusType === 'collection') {
+      // For total collection, just show all verified players
+      setFilters(prev => ({ ...prev, status: 'verified' }));
+      setActiveTab('verified');
+      setSuccess('Showing verified players (Total Collection)');
+    }
+    
+    // Reset to first page
+    setCurrentPage(1);
+    
+    // Clear success message after 3 seconds
+    setTimeout(() => setSuccess(''), 3000);
+  };
+  
+  // Handle tab click for filtering
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    setShowAllPlayersView(false);
+    setFilters(prev => ({ ...prev, status: tab === 'all' ? 'all' : tab }));
+    setCurrentPage(1);
+  };
+  
+  // Stats cards data based on player type with click handlers
   const statsCards = [
     { 
       title: 'Total Registrations', 
       value: playerType === 'cds' ? stats.total : jplStats.total, 
       icon: '📋',
       color: '#667eea',
-      description: 'All registered players'
+      description: 'All registered players',
+      statusType: 'total',
+      clickable: true
     },
     { 
       title: 'Pending', 
       value: playerType === 'cds' ? stats.pending : jplStats.pending, 
       icon: '⏳',
       color: '#ed8936',
-      description: 'Awaiting verification'
+      description: 'Awaiting verification',
+      statusType: 'pending',
+      clickable: true
     },
     { 
       title: 'Verified', 
       value: playerType === 'cds' ? stats.verified : jplStats.verified, 
       icon: '✅',
       color: '#48bb78',
-      description: 'Payment confirmed'
+      description: 'Payment confirmed',
+      statusType: 'verified',
+      clickable: true
     },
     { 
       title: 'Rejected', 
       value: playerType === 'cds' ? stats.rejected : jplStats.rejected, 
       icon: '❌',
       color: '#f56565',
-      description: 'Payment rejected'
+      description: 'Payment rejected',
+      statusType: 'rejected',
+      clickable: true
     },
     { 
       title: 'Total Collection', 
       value: `₹${playerType === 'cds' ? stats.totalCollection : jplStats.totalCollection}`, 
       icon: '💰',
       color: '#9f7aea',
-      description: 'Total registration fees (verified only)'
+      description: 'Total registration fees (verified only)',
+      statusType: 'collection',
+      clickable: true
     }
   ];
 
@@ -499,6 +553,9 @@ const AdminDashboard = () => {
     });
     setCurrentPage(1);
     setShowAllPlayersView(false);
+    setActiveTab('all');
+    setSuccess('All filters cleared');
+    setTimeout(() => setSuccess(''), 3000);
   };
 
   // Export data to CSV
@@ -617,9 +674,10 @@ const AdminDashboard = () => {
   const getFilteredPlayers = useMemo(() => {
     let filtered = [...currentPlayers];
     
-    // Apply status filter
-    if (filters.status !== 'all') {
-      filtered = filtered.filter(player => player.paymentStatus === filters.status);
+    // Apply status filter from activeTab or filters
+    const statusToFilter = showAllPlayersView ? filters.status : activeTab;
+    if (statusToFilter !== 'all') {
+      filtered = filtered.filter(player => player.paymentStatus === statusToFilter);
     }
     
     // Apply role filter
@@ -660,7 +718,7 @@ const AdminDashboard = () => {
     }
     
     return filtered;
-  }, [currentPlayers, filters, playerType]);
+  }, [currentPlayers, filters, playerType, showAllPlayersView, activeTab]);
 
   // Initial data fetch
   useEffect(() => {
@@ -714,10 +772,15 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Clickable */}
         <div className="stats-grid">
           {statsCards.map((stat, index) => (
-            <div key={index} className="stat-card">
+            <div 
+              key={index} 
+              className={`stat-card ${stat.clickable ? 'clickable' : ''}`}
+              onClick={() => stat.clickable && handleStatsCardClick(stat.statusType)}
+              style={{ cursor: stat.clickable ? 'pointer' : 'default' }}
+            >
               <div className="stat-icon" style={{ background: `${stat.color}20`, color: stat.color }}>
                 {stat.icon}
               </div>
@@ -726,6 +789,7 @@ const AdminDashboard = () => {
                 <p className="stat-value">{stat.value}</p>
                 <p className="stat-description">
                   {stat.description}
+                  {stat.clickable && <span className="click-hint"> (click to filter)</span>}
                 </p>
               </div>
             </div>
@@ -795,6 +859,46 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Tabs for Filtering - ADDED BACK */}
+        <div className="tabs-container">
+          <button
+            className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+            onClick={() => handleTabClick('all')}
+          >
+            All
+            <span className="tab-count">
+              ({playerType === 'cds' ? stats.total : jplStats.total})
+            </span>
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
+            onClick={() => handleTabClick('pending')}
+          >
+            Pending
+            <span className="tab-count">
+              ({playerType === 'cds' ? stats.pending : jplStats.pending})
+            </span>
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'verified' ? 'active' : ''}`}
+            onClick={() => handleTabClick('verified')}
+          >
+            Verified
+            <span className="tab-count">
+              ({playerType === 'cds' ? stats.verified : jplStats.verified})
+            </span>
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'rejected' ? 'active' : ''}`}
+            onClick={() => handleTabClick('rejected')}
+          >
+            Rejected
+            <span className="tab-count">
+              ({playerType === 'cds' ? stats.rejected : jplStats.rejected})
+            </span>
+          </button>
+        </div>
 
         {/* Main Content */}
         <div className="main-content">
