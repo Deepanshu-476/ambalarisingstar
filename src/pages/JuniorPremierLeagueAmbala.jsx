@@ -24,7 +24,7 @@ const JuniorPremierLeagueAmbala = () => {
   const [paymentInfo, setPaymentInfo] = useState({
     qrCodeUrl: null,
     upiId: '',
-    registrationFee: 500
+    registrationFee: 1200
   });
   const [isMobile, setIsMobile] = useState(false);
   
@@ -183,14 +183,14 @@ const JuniorPremierLeagueAmbala = () => {
         setPaymentInfo({
           qrCodeUrl: response.data.qrCodeUrl || null,
           upiId: response.data.upiId || '9896474454@ptsbi',
-          registrationFee: response.data.registrationFee || 500
+          registrationFee: 1200 // Fixed to 1200
         });
       } else {
         // Fallback values
         setPaymentInfo({
           qrCodeUrl: null,
           upiId: '9896474454@ptsbi',
-          registrationFee: 500
+          registrationFee: 1200 // Fixed to 1200
         });
       }
     } catch (error) {
@@ -199,7 +199,7 @@ const JuniorPremierLeagueAmbala = () => {
       setPaymentInfo({
         qrCodeUrl: null,
         upiId: '9896474454@ptsbi',
-        registrationFee: 500
+        registrationFee: 1200 // Fixed to 1200
       });
     }
   };
@@ -312,21 +312,6 @@ const JuniorPremierLeagueAmbala = () => {
     if (fileInput) fileInput.value = '';
   };
 
-  const validateCricHeroesLink = (link) => {
-    if (!link.includes('cricheroes.com') && !link.includes('chshare.link')) {
-      throw new Error('Profile link must be a valid CricHeroes or Chshare URL');
-    }
-
-    const cricHeroesPattern = /^https:\/\/cricheroes\.com\/player-profile\/\d+\/[A-Za-z0-9_-]+$/;
-    const chsharePattern = /^https:\/\/chshare\.link\/player\/[A-Za-z0-9_-]+$/;
-    
-    if (!cricHeroesPattern.test(link) && !chsharePattern.test(link)) {
-      throw new Error('Profile link must be in one of the following formats: \nhttps://cricheroes.com/player-profile/1572929/Pepsi\nhttps://chshare.link/player/r56Fec');
-    }
-
-    return true;
-  };
-
   const validateDOB = (dob) => {
     if (!dob) {
       throw new Error('Date of Birth is required');
@@ -416,11 +401,17 @@ const JuniorPremierLeagueAmbala = () => {
       throw new Error('Player age does not meet the eligibility criteria for any category');
     }
     
+    // Validate CricHeroes Profile Link (now required)
     if (!profileLink.trim()) {
-      throw new Error('CricHeroes profile link is required');
+      throw new Error('CricHeroes Profile Link is required');
     }
     
-    validateCricHeroesLink(profileLink.trim());
+    // Basic URL validation for CricHeroes link
+    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    if (!urlRegex.test(profileLink)) {
+      throw new Error('Please enter a valid CricHeroes profile URL');
+    }
+    
     validateDocuments();
     
     return true;
@@ -498,6 +489,9 @@ const JuniorPremierLeagueAmbala = () => {
       submitData.append('paymentStatus', 'pending');
       submitData.append('verificationStatus', 'pending');
       
+      // Add registration fee - Fixed 1200
+      submitData.append('registrationFee', 1200);
+      
       // Add images (Aadhar card only, passport photo removed)
       if (aadharImage) {
         submitData.append('aadharImage', aadharImage);
@@ -521,11 +515,12 @@ const JuniorPremierLeagueAmbala = () => {
         setRegistrationStatus({
           type: 'success',
           title: 'Registration Submitted Successfully!',
-          message: 'Your registration for Junior Premier League Ambala Session 1 has been submitted for verification.',
+          message: `Your registration for Junior Premier League Ambala Session 1 has been submitted for verification.`,
           playerId: response.data.playerId || response.data.data?._id || 'JPL-' + Date.now(),
           utrNumber: formData.utrNumber,
           registrationDate: new Date().toLocaleDateString(),
-          ageCategory: formData.ageCategory
+          ageCategory: formData.ageCategory,
+          registrationFee: 1200
         });
         
         // Reset form
@@ -589,12 +584,7 @@ const JuniorPremierLeagueAmbala = () => {
     <div className="jpl-app-container">
       <div className="jpl-registration-container">
         
-        <div className="jpl-header-section">
-          <button className="jpl-dashboard-button" onClick={() => navigate("/")}>
-            <span>←</span>
-            <span>Dashboard</span>
-          </button>
-          
+        <div className="jpl-header-section">          
           <div className="jpl-logo-container">
             <div className="jpl-cricket-logo">🏏</div>
             <h1 className="jpl-title">Ambala Rising Star Cricket League</h1>
@@ -740,7 +730,7 @@ const JuniorPremierLeagueAmbala = () => {
                     placeholder="https://cricheroes.com/player-profile/000000000/xyz"
                     className="jpl-input"
                   />
-                  <small className="jpl-help-text">Format: https://cricheroes.com/player-profile/0000000/Abcde</small>
+                  <small className="jpl-help-text">Please provide your CricHeroes profile URL (Required)</small>
                 </div>
 
                 <div className="jpl-form-group">
@@ -785,7 +775,7 @@ const JuniorPremierLeagueAmbala = () => {
           ) : (
             <div className="jpl-form-section">
               <div className="jpl-payment-section">
-                <div className="jpl-amount-badge">Registration Fee: ₹{paymentInfo.registrationFee}</div>
+                <div className="jpl-amount-badge">Registration Fee: ₹1200</div>
                 
                 <div className="jpl-qr-container">
                   <h3>Scan QR Code to Pay</h3>
@@ -818,7 +808,7 @@ const JuniorPremierLeagueAmbala = () => {
                     <ul>
                       <li>Open any UPI app (Google Pay, PhonePe, Paytm, etc.)</li>
                       <li>Scan the QR code above</li>
-                      <li>Enter amount: ₹{paymentInfo.registrationFee}</li>
+                      <li>Enter amount: ₹1200</li>
                       <li>Complete the payment</li>
                       <li>Save the UTR/Reference number</li>
                     </ul>
@@ -826,6 +816,19 @@ const JuniorPremierLeagueAmbala = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="jpl-registration-form">
+                  <div className="jpl-form-group">
+                    <label className="jpl-label">Registration Amount <span className="jpl-required">*</span></label>
+                    <input
+                      type="text"
+                      value="₹1200"
+                      readOnly
+                      disabled
+                      className="jpl-input jpl-readonly-input"
+                      style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed', fontWeight: 'bold' }}
+                    />
+                    <small className="jpl-help-text">Registration fee is fixed and non-refundable</small>
+                  </div>
+
                   <div className="jpl-form-group">
                     <label className="jpl-label">Enter UTR/Reference Number <span className="jpl-required">*</span></label>
                     <input
@@ -879,6 +882,7 @@ const JuniorPremierLeagueAmbala = () => {
                       <span>ℹ️</span> Important Information
                     </div>
                     <p>
+                      • Registration Fee: ₹1200<br />
                       • Age Category: {formData.ageCategory || 'Will be auto-assigned based on DOB'}<br />
                       • <strong>Under 16 Category: Only players aged 10-16 years are eligible</strong><br />
                       • Aadhar card is mandatory for verification<br />
@@ -913,6 +917,7 @@ const JuniorPremierLeagueAmbala = () => {
                             {registrationStatus.message}
                             {registrationStatus.playerId && <><br /><strong>Player ID:</strong> {registrationStatus.playerId}</>}
                             {registrationStatus.ageCategory && <><br /><strong>Age Category:</strong> {registrationStatus.ageCategory}</>}
+                            {registrationStatus.registrationFee && <><br /><strong>Registration Fee:</strong> ₹{registrationStatus.registrationFee}</>}
                             {registrationStatus.utrNumber && <><br /><strong>UTR Number:</strong> {registrationStatus.utrNumber}</>}
                             {registrationStatus.registrationDate && <><br /><strong>Date:</strong> {registrationStatus.registrationDate}</>}
                           </p>

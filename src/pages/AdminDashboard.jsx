@@ -103,7 +103,7 @@ const AdminDashboard = () => {
       value: `₹${playerType === 'cds' ? stats.totalCollection : jplStats.totalCollection}`, 
       icon: '💰',
       color: '#9f7aea',
-      description: 'Total registration fees'
+      description: 'Total registration fees (verified only)'
     }
   ];
 
@@ -127,15 +127,21 @@ const AdminDashboard = () => {
         // Calculate CDS stats
         const cdsPlayers = response.data.data;
         const pending = cdsPlayers.filter(p => p.paymentStatus === 'pending').length;
-        const verified = cdsPlayers.filter(p => p.paymentStatus === 'verified').length;
+        const verifiedPlayers = cdsPlayers.filter(p => p.paymentStatus === 'verified');
+        const verified = verifiedPlayers.length;
         const rejected = cdsPlayers.filter(p => p.paymentStatus === 'rejected').length;
+        
+        // Calculate total collection based on registrationFee field (default to 500 for CDS)
+        const totalCollection = verifiedPlayers.reduce((total, player) => {
+          return total + (player.registrationFee || 500);
+        }, 0);
         
         setStats({
           total: cdsPlayers.length,
           pending: pending,
           verified: verified,
           rejected: rejected,
-          totalCollection: verified * 500
+          totalCollection: totalCollection
         });
       }
     } catch (err) {
@@ -163,18 +169,24 @@ const AdminDashboard = () => {
       if (response.data.success) {
         setJplPlayers(response.data.data);
         
-        // Calculate JPL stats
+        // Calculate JPL stats with registration fee ₹1200
         const jplPlayersData = response.data.data;
         const pending = jplPlayersData.filter(p => p.paymentStatus === 'pending').length;
-        const verified = jplPlayersData.filter(p => p.paymentStatus === 'verified').length;
+        const verifiedPlayers = jplPlayersData.filter(p => p.paymentStatus === 'verified');
+        const verified = verifiedPlayers.length;
         const rejected = jplPlayersData.filter(p => p.paymentStatus === 'rejected').length;
+        
+        // Calculate total collection based on registrationFee field (default to 1200 for JPL)
+        const totalCollection = verifiedPlayers.reduce((total, player) => {
+          return total + (player.registrationFee || 1200);
+        }, 0);
         
         setJplStats({
           total: jplPlayersData.length,
           pending: pending,
           verified: verified,
           rejected: rejected,
-          totalCollection: verified * 500
+          totalCollection: totalCollection
         });
         
         // Set detailed stats for JPL
@@ -207,55 +219,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fetch dashboard stats
-  const fetchDashboardStats = async () => {
-    try {
-      const statsResponse = await API.get(`/player/dashboard-stats`);
-      
-      if (statsResponse.data.success) {
-        const overview = statsResponse.data.data.overview;
-        setStats({
-          total: overview.totalPlayers,
-          pending: overview.pendingPlayers,
-          verified: overview.verifiedPlayers,
-          rejected: overview.rejectedPlayers,
-          totalCollection: overview.totalCollection
-        });
-        
-        setDetailedStats({
-          roleStats: statsResponse.data.data.roleStats || [],
-          categoryStats: statsResponse.data.data.categoryStats || [],
-          monthlyStats: statsResponse.data.data.monthlyStats || []
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-    }
-  };
-
-  // Filter players based on active tab and filters
-  const getFilteredPlayers = useMemo(() => {
-    let filtered = [...currentPlayers];
-    
-    // Apply active tab filter (only for verification view)
-    if (!showAllPlayersView && activeTab !== 'all') {
-      filtered = filtered.filter(player => player.paymentStatus === activeTab);
-    }
-    
-    // Apply search filter if in all players view
-    if (showAllPlayersView && filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(player => 
-        player.name?.toLowerCase().includes(searchLower) ||
-        player.email?.toLowerCase().includes(searchLower) ||
-        player.phone?.includes(filters.search) ||
-        player.utrNumber?.includes(filters.search)
-      );
-    }
-    
-    return filtered;
-  }, [currentPlayers, activeTab, showAllPlayersView, filters.search]);
-
   // Helper function to generate mock players
   const generateMockPlayersWithStatus = (status, count, tournament = 'cds') => {
     const names = ['Aarav Sharma', 'Vivaan Patel', 'Aditya Singh', 'Vihaan Kumar', 'Arjun Gupta'];
@@ -281,7 +244,8 @@ const AdminDashboard = () => {
       teamPreference: i % 2 === 0 ? 'Team A' : 'Team B',
       notes: status === 'rejected' ? 'Payment not received' : null,
       tournament: tournament === 'cds' ? 'CDS Champions Trophy' : 'Junior Premier League Ambala Section 1',
-      aadharNumber: `1234${String(5678 + i).slice(0, 8)}`
+      aadharNumber: `1234${String(5678 + i).slice(0, 8)}`,
+      registrationFee: tournament === 'jpl' ? 1200 : 500
     }));
   };
 
@@ -296,12 +260,17 @@ const AdminDashboard = () => {
       
       setAllPlayers(mockPlayers);
       
+      const verifiedPlayers = mockPlayers.filter(p => p.paymentStatus === 'verified');
+      const totalCollection = verifiedPlayers.reduce((total, player) => {
+        return total + (player.registrationFee || 500);
+      }, 0);
+      
       setStats({
         total: mockPlayers.length,
         pending: mockPlayers.filter(p => p.paymentStatus === 'pending').length,
-        verified: mockPlayers.filter(p => p.paymentStatus === 'verified').length,
+        verified: verifiedPlayers.length,
         rejected: mockPlayers.filter(p => p.paymentStatus === 'rejected').length,
-        totalCollection: mockPlayers.filter(p => p.paymentStatus === 'verified').length * 500
+        totalCollection: totalCollection
       });
     } else {
       const mockPlayers = [
@@ -312,12 +281,18 @@ const AdminDashboard = () => {
       
       setJplPlayers(mockPlayers);
       
+      // Calculate JPL stats with ₹1200 fee - ONLY FOR VERIFIED PLAYERS
+      const verifiedPlayers = mockPlayers.filter(p => p.paymentStatus === 'verified');
+      const totalCollection = verifiedPlayers.reduce((total, player) => {
+        return total + (player.registrationFee || 1200);
+      }, 0);
+      
       setJplStats({
         total: mockPlayers.length,
         pending: mockPlayers.filter(p => p.paymentStatus === 'pending').length,
-        verified: mockPlayers.filter(p => p.paymentStatus === 'verified').length,
+        verified: verifiedPlayers.length,
         rejected: mockPlayers.filter(p => p.paymentStatus === 'rejected').length,
-        totalCollection: mockPlayers.filter(p => p.paymentStatus === 'verified').length * 500
+        totalCollection: totalCollection
       });
       
       // Mock detailed stats for JPL
@@ -392,10 +367,10 @@ const AdminDashboard = () => {
     setTimeout(() => setSuccess(''), 3000);
   };
 
-  // Handle verification
+  // Handle verification - NO RESTRICTIONS
   const handleVerifyPayment = async () => {
-    if (!selectedPlayer || !verificationStatus || !verifiedBy.trim()) {
-      setError('Please select a status and enter your name');
+    if (!selectedPlayer) {
+      setError('Please select a player');
       return;
     }
 
@@ -406,7 +381,7 @@ const AdminDashboard = () => {
       const updateData = {
         playerId: selectedPlayer._id,
         paymentStatus: verificationStatus,
-        verifiedBy: verifiedBy.trim(),
+        verifiedBy: verifiedBy.trim() || 'Admin',
         notes: verificationNotes
       };
       
@@ -426,7 +401,12 @@ const AdminDashboard = () => {
         setSuccess(`Payment ${verificationStatus} successfully`);
         
         // Update local state
-        const updatedPlayer = response.data.data || { ...selectedPlayer, paymentStatus: verificationStatus, verifiedBy: verifiedBy.trim(), verificationDate: new Date().toISOString() };
+        const updatedPlayer = response.data.data || { 
+          ...selectedPlayer, 
+          paymentStatus: verificationStatus, 
+          verifiedBy: verifiedBy.trim() || 'Admin', 
+          verificationDate: new Date().toISOString() 
+        };
         
         if (playerType === 'cds') {
           setAllPlayers(prevPlayers => 
@@ -504,7 +484,6 @@ const AdminDashboard = () => {
 
   // Handle advanced filter search
   const handleAdvancedSearch = () => {
-    // For mock data, just filter locally
     setShowAllPlayersView(true);
   };
 
@@ -531,7 +510,7 @@ const AdminDashboard = () => {
       return;
     }
     
-    const headers = ['Name', 'Email', 'Phone', 'Role', 'Category', 'UTR Number', 'Payment Status', 'Registered Date', 'Verified Date', 'Verified By'];
+    const headers = ['Name', 'Email', 'Phone', 'Role', 'Category', 'UTR Number', 'Registration Fee', 'Payment Status', 'Registered Date', 'Verified Date', 'Verified By'];
     const csvData = [
       headers.join(','),
       ...playersToExport.map(player => [
@@ -541,6 +520,7 @@ const AdminDashboard = () => {
         `"${player.role || 'N/A'}"`,
         `"${player.ageCategory || player.category || 'N/A'}"`,
         `"${player.utrNumber || 'N/A'}"`,
+        `"${player.registrationFee || (playerType === 'jpl' ? 1200 : 500)}"`,
         `"${player.paymentStatus || 'N/A'}"`,
         `"${player.createdAt ? new Date(player.createdAt).toLocaleDateString('en-IN') : 'N/A'}"`,
         `"${player.verificationDate ? new Date(player.verificationDate).toLocaleDateString('en-IN') : 'Not Verified'}"`,
@@ -633,27 +613,54 @@ const AdminDashboard = () => {
     }
   };
 
-  // Handle page change
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // Handle filter change
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  // Handle view toggle
-  const handleViewToggle = (isAllPlayersView) => {
-    setShowAllPlayersView(isAllPlayersView);
-    setCurrentPage(1);
-    setActiveTab('all');
-  };
-
-  // Handle tab change
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
+  // Filter players based on active tab and filters
+  const getFilteredPlayers = useMemo(() => {
+    let filtered = [...currentPlayers];
+    
+    // Apply status filter
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(player => player.paymentStatus === filters.status);
+    }
+    
+    // Apply role filter
+    if (filters.role !== 'all') {
+      filtered = filtered.filter(player => player.role === filters.role);
+    }
+    
+    // Apply category filter
+    if (filters.category !== 'all') {
+      if (playerType === 'jpl') {
+        filtered = filtered.filter(player => player.ageCategory === filters.category);
+      } else {
+        filtered = filtered.filter(player => player.category === filters.category);
+      }
+    }
+    
+    // Apply search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(player => 
+        player.name?.toLowerCase().includes(searchLower) ||
+        player.email?.toLowerCase().includes(searchLower) ||
+        player.phone?.includes(filters.search) ||
+        player.utrNumber?.includes(filters.search)
+      );
+    }
+    
+    // Apply date filters
+    if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      filtered = filtered.filter(player => new Date(player.createdAt) >= startDate);
+    }
+    
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59);
+      filtered = filtered.filter(player => new Date(player.createdAt) <= endDate);
+    }
+    
+    return filtered;
+  }, [currentPlayers, filters, playerType]);
 
   // Initial data fetch
   useEffect(() => {
@@ -684,7 +691,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Tournament Selector Buttons - NEW SECTION */}
+        {/* Tournament Selector Buttons */}
         <div className="tournament-selector-section">
           <div className="tournament-buttons">
             <button
@@ -811,7 +818,7 @@ const AdminDashboard = () => {
             <div className="view-toggle-buttons">
               <button
                 className={`view-toggle-btn ${!showAllPlayersView ? 'active' : ''}`}
-                onClick={() => handleViewToggle(false)}
+                onClick={() => setShowAllPlayersView(false)}
               >
                 <span className="btn-icon">⏳</span>
                 Pending Verification
@@ -819,7 +826,7 @@ const AdminDashboard = () => {
               
               <button
                 className={`view-toggle-btn ${showAllPlayersView ? 'active' : ''}`}
-                onClick={() => handleViewToggle(true)}
+                onClick={() => setShowAllPlayersView(true)}
               >
                 <span className="btn-icon">📋</span>
                 All Players
@@ -865,7 +872,7 @@ const AdminDashboard = () => {
                   <select
                     className="filter-select"
                     value={filters.status}
-                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                    onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
                   >
                     <option value="all">All Status</option>
                     <option value="pending">Pending</option>
@@ -879,7 +886,7 @@ const AdminDashboard = () => {
                   <select
                     className="filter-select"
                     value={filters.role}
-                    onChange={(e) => handleFilterChange('role', e.target.value)}
+                    onChange={(e) => setFilters(prev => ({ ...prev, role: e.target.value }))}
                   >
                     <option value="all">All Roles</option>
                     <option value="Batsman">Batsman</option>
@@ -896,7 +903,7 @@ const AdminDashboard = () => {
                   <select
                     className="filter-select"
                     value={filters.category}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
+                    onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
                   >
                     <option value="all">
                       {playerType === 'cds' ? 'All Categories' : 'All Age Categories'}
@@ -927,7 +934,7 @@ const AdminDashboard = () => {
                     className="filter-input"
                     placeholder="Search by name, email, phone, or UTR..."
                     value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   />
                 </div>
                 
@@ -937,7 +944,7 @@ const AdminDashboard = () => {
                     type="date"
                     className="filter-input"
                     value={filters.startDate}
-                    onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                    onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
                   />
                 </div>
                 
@@ -947,7 +954,7 @@ const AdminDashboard = () => {
                     type="date"
                     className="filter-input"
                     value={filters.endDate}
-                    onChange={(e) => handleFilterChange('endDate', e.target.value)}
+                    onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
                   />
                 </div>
               </div>
@@ -1045,26 +1052,6 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          {/* Tabs for Pending View */}
-          {!showAllPlayersView && (
-            <div className="tabs-container">
-              {['all', 'pending', 'verified', 'rejected'].map(tab => (
-                <button
-                  key={tab}
-                  className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
-                  onClick={() => handleTabChange(tab)}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  {tab !== 'all' && (
-                    <span className="tab-count">
-                      ({playerType === 'cds' ? stats[tab] : jplStats[tab]})
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Players Table */}
           {loading ? (
             <div className="loading-container">
@@ -1089,7 +1076,7 @@ const AdminDashboard = () => {
                         Role: {filters.role}
                         <button 
                           className="filter-remove"
-                          onClick={() => handleFilterChange('role', 'all')}
+                          onClick={() => setFilters(prev => ({ ...prev, role: 'all' }))}
                         >
                           ×
                         </button>
@@ -1100,7 +1087,7 @@ const AdminDashboard = () => {
                         Status: {filters.status}
                         <button 
                           className="filter-remove"
-                          onClick={() => handleFilterChange('status', 'all')}
+                          onClick={() => setFilters(prev => ({ ...prev, status: 'all' }))}
                         >
                           ×
                         </button>
@@ -1111,7 +1098,7 @@ const AdminDashboard = () => {
                         {playerType === 'cds' ? 'Category' : 'Age Category'}: {filters.category}
                         <button 
                           className="filter-remove"
-                          onClick={() => handleFilterChange('category', 'all')}
+                          onClick={() => setFilters(prev => ({ ...prev, category: 'all' }))}
                         >
                           ×
                         </button>
@@ -1122,7 +1109,7 @@ const AdminDashboard = () => {
                         Search: {filters.search}
                         <button 
                           className="filter-remove"
-                          onClick={() => handleFilterChange('search', '')}
+                          onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
                         >
                           ×
                         </button>
@@ -1237,7 +1224,11 @@ const AdminDashboard = () => {
                             <div className="utr-number-display">
                               {player.utrNumber}
                             </div>
-                            <div className="status-badge-container">
+                            {/* Show Registration Fee */}
+                            <div className="registration-fee-display" style={{ marginTop: '8px', fontWeight: 'bold', color: '#2d3748' }}>
+                              Fee: ₹{player.registrationFee || (playerType === 'jpl' ? 1200 : 500)}
+                            </div>
+                            <div className="status-badge-container" style={{ marginTop: '8px' }}>
                               <span 
                                 className="status-badge table-badge"
                                 style={getStatusColor(player.paymentStatus)}
@@ -1245,16 +1236,16 @@ const AdminDashboard = () => {
                                 {player.paymentStatus}
                               </span>
                             </div>
-                            <div className="payment-method">
+                            <div className="payment-method" style={{ marginTop: '8px' }}>
                               Method: {player.paymentMethod === 'qr' ? 'QR Code' : 'Bank Transfer'}
                             </div>
                             {player.verifiedBy && (
-                              <div className="verified-by">
+                              <div className="verified-by" style={{ marginTop: '8px', fontSize: '12px', color: '#718096' }}>
                                 Verified by: {player.verifiedBy}
                               </div>
                             )}
                             {player.notes && (
-                              <div className="player-notes">
+                              <div className="player-notes" style={{ marginTop: '8px', fontSize: '12px', color: '#e53e3e' }}>
                                 Note: {player.notes}
                               </div>
                             )}
@@ -1350,7 +1341,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Verification Modal */}
+      {/* Verification Modal - NO RESTRICTIONS */}
       {showVerifyModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1389,6 +1380,13 @@ const AdminDashboard = () => {
                   {selectedPlayer?.utrNumber}
                 </div>
               </div>
+
+              <div className="modal-section">
+                <div className="modal-field-label">Registration Fee</div>
+                <div className="modal-utr-display">
+                  ₹{selectedPlayer?.registrationFee || (playerType === 'jpl' ? 1200 : 500)}
+                </div>
+              </div>
               
               <div className="modal-section">
                 <div className="modal-field-label">Current Status</div>
@@ -1401,12 +1399,12 @@ const AdminDashboard = () => {
               
               <div className="modal-section">
                 <div className="modal-field-label">
-                  Verified By (Your Name)
+                  Verified By (Your Name) - Optional
                 </div>
                 <input
                   type="text"
                   className="modal-input"
-                  placeholder="Enter your name"
+                  placeholder="Enter your name (optional)"
                   value={verifiedBy}
                   onChange={(e) => setVerifiedBy(e.target.value)}
                 />
@@ -1439,11 +1437,11 @@ const AdminDashboard = () => {
                 Cancel
               </button>
               <button
-                className={`modal-btn confirm-btn ${verificationStatus || 'pending'}`}
+                className="modal-btn confirm-btn"
                 onClick={handleVerifyPayment}
-                disabled={!verifiedBy.trim() || verifying}
+                disabled={verifying}
               >
-                {verifying ? 'Processing...' : `Mark as ${verificationStatus || 'pending'}`}
+                {verifying ? 'Processing...' : `Update Status to ${verificationStatus || 'pending'}`}
               </button>
             </div>
           </div>
