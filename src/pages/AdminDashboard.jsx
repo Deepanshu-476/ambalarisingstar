@@ -567,22 +567,70 @@ const AdminDashboard = () => {
       return;
     }
     
-    const headers = ['Name', 'Email', 'Phone', 'Role', 'Category', 'UTR Number', 'Registration Fee', 'Payment Status', 'Registered Date', 'Verified Date', 'Verified By'];
+    const escapeCSVValue = (value) => `"${String(value ?? 'N/A').replace(/"/g, '""')}"`;
+    const formatCSVDate = (date) => date ? new Date(date).toLocaleDateString('en-IN') : 'N/A';
+    const headers = playerType === 'jpl'
+      ? [
+          'Name',
+          'Email',
+          'Phone',
+          'Date of Birth',
+          'Age Category',
+          'Role',
+          'CricHeroes Profile Link',
+          'Aadhar Number',
+          'Aadhar Image',
+          'UTR Number',
+          'Payment Method',
+          'Payment Proof',
+          'Registration Fee',
+          'Tournament',
+          'Payment Status',
+          'Verification Status',
+          'Registered Date',
+          'Updated Date'
+        ]
+      : ['Name', 'Email', 'Phone', 'Role', 'Category', 'UTR Number', 'Registration Fee', 'Payment Status', 'Registered Date', 'Verified Date', 'Verified By'];
     const csvData = [
       headers.join(','),
-      ...playersToExport.map(player => [
-        `"${player.name || 'N/A'}"`,
-        `"${player.email || 'N/A'}"`,
-        `"${player.phone || 'N/A'}"`,
-        `"${player.role || 'N/A'}"`,
-        `"${player.ageCategory || player.category || 'N/A'}"`,
-        `"${player.utrNumber || 'N/A'}"`,
-        `"${player.registrationFee || (playerType === 'jpl' ? 1200 : 500)}"`,
-        `"${player.paymentStatus || 'N/A'}"`,
-        `"${player.createdAt ? new Date(player.createdAt).toLocaleDateString('en-IN') : 'N/A'}"`,
-        `"${player.verificationDate ? new Date(player.verificationDate).toLocaleDateString('en-IN') : 'Not Verified'}"`,
-        `"${player.verifiedBy || 'N/A'}"`
-      ].join(','))
+      ...playersToExport.map(player => {
+        const row = playerType === 'jpl'
+          ? [
+              player.name,
+              player.email,
+              player.phone,
+              formatCSVDate(player.dob),
+              player.ageCategory,
+              player.role,
+              player.profileLink,
+              player.aadharNumber,
+              player.aadharImage,
+              player.utrNumber,
+              player.paymentMethod,
+              player.paymentProof,
+              player.registrationFee || 1200,
+              player.tournament,
+              player.paymentStatus,
+              player.verificationStatus,
+              formatCSVDate(player.createdAt),
+              formatCSVDate(player.updatedAt)
+            ]
+          : [
+              player.name,
+              player.email,
+              player.phone,
+              player.role,
+              player.ageCategory || player.category,
+              player.utrNumber,
+              player.registrationFee || 500,
+              player.paymentStatus,
+              formatCSVDate(player.createdAt),
+              player.verificationDate ? new Date(player.verificationDate).toLocaleDateString('en-IN') : 'Not Verified',
+              player.verifiedBy
+            ];
+
+        return row.map(escapeCSVValue).join(',');
+      })
     ].join('\n');
 
     const blob = new Blob([csvData], { type: 'text/csv' });
@@ -611,7 +659,7 @@ const AdminDashboard = () => {
         params.append('status', activeTab);
       }
       
-      const endpoint = playerType === 'cds' ? '/player/export-players' : '/jpl-player/export';
+      const endpoint = playerType === 'cds' ? '/player/export' : '/jpl-player/export';
       const response = await API.get(endpoint, {
         params: params,
         responseType: 'blob'
