@@ -113,7 +113,6 @@
  margin-left: 15px;
 } 
 
-
 .popup-features {
   margin: 30px 0;
 }
@@ -487,7 +486,7 @@ body:not(.video-modal-open) {
   display: inline-block;
   text-transform: uppercase;
   letter-spacing: 1px;
-};
+}
 
 .register-btn:hover {
   transform: translateY(-3px);

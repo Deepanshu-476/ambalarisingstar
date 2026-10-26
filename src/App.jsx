@@ -48,15 +48,16 @@ function App() {
         <Route path="/ChampionsTrophy" element={<ChampionsTrophy />} />
         <Route path="/book-slots" element={<Booking />} />
 
-        {/* Fallback */}
-        <Route path="*" element={<NotFound />} />
         <Route path="/playerRegistration" element={<CricketPlayerRegistration/>} />
         <Route path="/Ambala-Rising-Star" element={<JuniorPremierLeagueAmbala />} />  {/* ✅ NEW ROUTE */}
         <Route path="/contact" element={< ContactUs/>}/>
         <Route path="/privacy" element={< PrivacyPolicy/>}/>
+        <Route path="/privacy-policy" element={< PrivacyPolicy/>}/>
         <Route path="/refund" element={< RefundPolicy/>}/>
         <Route path="/terms" element={< TermsAndConditions/>}/>
 
+        {/* Fallback */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       {/* Footer har page par */}
