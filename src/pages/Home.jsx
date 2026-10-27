@@ -1,10 +1,10 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, Menu, X, MessageCircle } from "lucide-react";
+import { ArrowUpRight, X, MessageCircle } from "lucide-react";
 import promoVideo from "../assets/popupview.mp4";
 import "./Home.css";
 import HomeContent from "./HomeContent";
-import Footer from "./components/footer";
+import "./HomeTheme.css";
 const ScrollCricketScene = lazy(() => import("./ScrollCricketScene"));
 
 const slides = [
@@ -17,7 +17,6 @@ export default function Home() {
   const scrollRootRef = useRef(null);
   const progressRef = useRef(0);
   const [phase, setPhase] = useState(0);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
   const slide = slides[active];
   const [activeVideo,setActiveVideo]=useState(promoVideo);
@@ -40,7 +39,10 @@ export default function Home() {
     const update = (timestamp = performance.now()) => {
       frame = 0;
       const rect = root.getBoundingClientRect();
-      const target = clamp(-rect.top / Math.max(1, root.offsetHeight - window.innerHeight));
+      const scrollProgress = clamp(-rect.top / Math.max(1, root.offsetHeight - window.innerHeight));
+      // Follow the current scroll position in both directions so returning to
+      // the sticky hero replays its scenes instead of holding the final frame.
+      const target = scrollProgress >= .97 ? 1 : scrollProgress;
       const delta = Math.min(50, timestamp - (previousTime || timestamp));
       previousTime = timestamp;
       if(displayedProgress === null || reducedMotion.matches) displayedProgress=target;
@@ -100,14 +102,7 @@ export default function Home() {
       <section className={`ck-hero ck-scroll-hero ck-phase-${phase} ck-scene-${slide.scene}`} id="home" aria-label="Scroll to follow the ball from delivery to boundary">
         <div className="ck-stadium" aria-hidden="true" />
         <div className="ck-diagonal ck-diagonal-one" aria-hidden="true" /><div className="ck-diagonal ck-diagonal-two" aria-hidden="true" />
-        <header className="ck-header">
-          <Link to="/" className="ck-logo ck-cds-brand" aria-label="CDS Premier Cricket League home"><img src="/image/cds-logo.jpeg" alt=""/><span>CDS<small>PREMIER CRICKET LEAGUE</small></span></Link>
-          <button className="ck-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="ck-navigation" aria-label={menuOpen ? "Close menu" : "Open menu"}>{menuOpen ? <X /> : <Menu />}</button>
-          <nav id="ck-navigation" className={menuOpen ? "ck-nav is-open" : "ck-nav"} aria-label="Main navigation" onClick={() => setMenuOpen(false)}>
-            <a className="ck-nav-active" href="#home">HOME</a><a href="#tournament">TOURNAMENT</a><a href="#stadium">STADIUM</a><a href="#time-slots">SLOTS</a><Link to="/gallery">GALLERY</Link><Link to="/contact">CONTACT</Link>
-          </nav>
-          <Link className="ck-button ck-header-cta" to="/book-slots">BOOK MATCH SLOT <ArrowUpRight size={15} /></Link>
-        </header>
+
 
         <Suspense fallback={null}><ScrollCricketScene progressRef={progressRef} /></Suspense>
         <div className="ck-hero-inner">
@@ -128,19 +123,34 @@ export default function Home() {
         </div>
 
         <div className="ck-shot-data" aria-hidden={phase !== 1 && phase !== 2}>
-          <span className="ck-data-label">DAILY MATCH SESSIONS</span><div className="ck-data-pair"><span><small>MORNING</small><b>6:30 <em>AM</em></b></span><span><small>DAY</small><b>10:00 <em>AM</em></b></span></div>
-          <span className="ck-data-label">DAY &amp; NIGHT CRICKET</span><div className="ck-data-pair"><span><small>EVENING</small><b>5:00 <em>PM</em></b></span><span><small>NIGHT</small><b>8:30 <em>PM</em></b></span></div><small className="ck-demo-label">YAMUNANAGAR GROUND</small>
+          <span className="ck-data-label">DAILY MATCH SESSIONS</span><div className="ck-data-pair"><span><small>MORNING</small><b>6:00 <em>AM</em></b></span><span><small>DAY</small><b>9:30 <em>AM</em></b></span></div>
+          <span className="ck-data-label">AFTERNOON CRICKET</span><div className="ck-data-pair"><span><small>EVENING</small><b>1:00 <em>PM</em></b></span><span><small>SESSIONS</small><b>03</b></span></div><small className="ck-demo-label">YAMUNANAGAR GROUND</small>
         </div>
         <div className="ck-bat-analysis" aria-hidden="true"><span className="ck-data-label">CDS PLAYER CATEGORIES</span><p>SUB-JUNIORS <b>U-14</b></p><p>YOUTH STARS <b>U-19</b></p><p>CHALLENGERS <b>U-25</b></p></div>
         <div className="ck-six-burst" aria-hidden="true"><span>SIX!</span></div>
-        <div className="ck-hawkeye" aria-hidden={phase !== 3}><span>CDS PREMIER LEAGUE</span><b>20<small> OVERS</small></b><em>WHITE BALL / DAY &amp; NIGHT MATCHES</em></div>
+        <div className="ck-hawkeye" aria-hidden={phase !== 3}>
+          <div className="ck-hawkeye-badge">HAWK-EYE</div>
+          <div className="ck-hawkeye-speed"><b>138</b><small>KM/H</small></div>
+          <em>CDS RADAR TRACKING</em>
+        </div>
         <div className="ck-hero-bottom"><span className="ck-slide-count">0{phase + 1}<span> / 05</span></span><div className="ck-slide-dots" role="group" aria-label="Jump to a moment">{['Delivery','The swing','Six!','Ball flight','CDS registration'].map((label,index) => <button key={label} aria-label={label} aria-pressed={phase === index} className={phase === index ? 'is-active' : ''} onClick={() => goToMoment(index)} />)}</div><button className="ck-scroll-cue" onClick={() => phase === 4 ? document.getElementById('tournament').scrollIntoView({behavior:'smooth'}) : goToMoment(Math.min(phase+1,4))}>SCROLL TO {phase === 4 ? 'EXPLORE' : 'PLAY'}<span>&darr;</span></button></div>
+        <div className="ck-hero-ticker" aria-hidden="true">
+          <div className="ck-ticker-track">
+            <span>CDS PREMIER CRICKET LEAGUE</span><span className="ck-ticker-star">✳</span>
+            <span>YAMUNANAGAR GROUND STADIUM</span><span className="ck-ticker-star">✳</span>
+            <span>3 DAILY MATCH SESSIONS</span><span className="ck-ticker-star">✳</span>
+            <span>BOOK MATCH SLOTS</span><span className="ck-ticker-star">✳</span>
+            <span>CDS PREMIER CRICKET LEAGUE</span><span className="ck-ticker-star">✳</span>
+            <span>YAMUNANAGAR GROUND STADIUM</span><span className="ck-ticker-star">✳</span>
+            <span>3 DAILY MATCH SESSIONS</span><span className="ck-ticker-star">✳</span>
+            <span>BOOK MATCH SLOTS</span><span className="ck-ticker-star">✳</span>
+          </div>
+        </div>
         <div className="ck-scroll-progress" aria-hidden="true"><span /></div>
       </section>
       </div>
 
       <HomeContent onPlayVideo={playVideo}/>
-      <Footer/>
       <Link to="/contact" className="ck-chat" aria-label="Contact us"><MessageCircle size={25} /></Link>
       {videoOpen && <div className="ck-modal" onClick={event => { if (event.target === event.currentTarget) setVideoOpen(false); }}><div className="ck-modal-panel" role="dialog" aria-modal="true" aria-label={videoTitle} onKeyDown={event => { if (event.key === "Tab") { const items = event.currentTarget.querySelectorAll("button, video"); const first = items[0]; const last = items[items.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); } } }}><button autoFocus className="ck-modal-close" onClick={() => setVideoOpen(false)} aria-label="Close film"><X /></button><video src={activeVideo} autoPlay controls playsInline tabIndex={0} /><p>{videoTitle}</p></div></div>}
     </div>

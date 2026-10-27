@@ -4,12 +4,11 @@ import autoTable from 'jspdf-autotable';
 import CaptainHeader from '../../component/Captain.header';
 import API from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../components/footer';
-import '../../pages/captain/CaptainDashboard.css'; 
+import '../../pages/captain/CaptainDashboard.css';
 
 const TeamManagement = () => {
   const navigate = useNavigate();
-  
+
   // State declarations
   const [team, setTeam] = useState(null);
   const [members, setMembers] = useState([]);
@@ -63,7 +62,7 @@ const TeamManagement = () => {
     try {
       setLoading(true);
       const response = await API.get('/team/my-team');
-      
+
       if (response.data.success) {
         setTeam(response.data.team);
         setMembers(response.data.members || []);
@@ -73,9 +72,9 @@ const TeamManagement = () => {
       if (error.response?.status === 401) {
         handleLogout();
       } else {
-        showNotification('error', 
-          error.response?.data?.message || 
-          error.response?.data?.error || 
+        showNotification('error',
+          error.response?.data?.message ||
+          error.response?.data?.error ||
           'Failed to fetch team data'
         );
       }
@@ -112,9 +111,9 @@ const TeamManagement = () => {
       }
     } catch (error) {
       console.error('Error creating team:', error);
-      showNotification('error', 
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+      showNotification('error',
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Failed to create team'
       );
     }
@@ -155,8 +154,8 @@ const TeamManagement = () => {
       }
     } catch (error) {
       console.error('Error adding players:', error);
-      const errorMsg = error.response?.data?.error || 
-                      error.response?.data?.message || 
+      const errorMsg = error.response?.data?.error ||
+                      error.response?.data?.message ||
                       'Failed to add players';
       showNotification('error', errorMsg);
     }
@@ -171,7 +170,7 @@ const TeamManagement = () => {
         showNotification('error', 'Name and Mobile are required');
         return;
       }
-      
+
       const response = await API.put(
         `/team/member/${editMember._id}`,
         editMember
@@ -185,9 +184,9 @@ const TeamManagement = () => {
       }
     } catch (error) {
       console.error('Error updating member:', error);
-      showNotification('error', 
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+      showNotification('error',
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Failed to update member'
       );
     }
@@ -208,9 +207,9 @@ const TeamManagement = () => {
       }
     } catch (error) {
       console.error('Error deleting member:', error);
-      showNotification('error', 
-        error.response?.data?.message || 
-        error.response?.data?.error || 
+      showNotification('error',
+        error.response?.data?.message ||
+        error.response?.data?.error ||
         'Failed to delete member'
       );
     }
@@ -271,21 +270,21 @@ const TeamManagement = () => {
 
     try {
       setIsExporting(true);
-      
+
       const doc = new jsPDF('p', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      
+
       doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(30, 58, 138);
       doc.text(team.teamName, pageWidth / 2, 25, { align: 'center' });
-      
+
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(75, 85, 99);
       doc.text('CDS Premier League', pageWidth / 2, 35, { align: 'center' });
-      
+
       doc.setFontSize(10);
       doc.text(`Generated: ${new Date().toLocaleDateString('en-US', {
         year: 'numeric',
@@ -294,21 +293,21 @@ const TeamManagement = () => {
         hour: '2-digit',
         minute: '2-digit'
       })}`, pageWidth / 2, 42, { align: 'center' });
-      
+
       let yPos = 55;
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(30, 41, 59);
       doc.text('Team Information', 20, yPos);
-      
+
       yPos += 12;
       doc.setDrawColor(59, 130, 246);
       doc.setLineWidth(0.5);
       doc.line(20, yPos - 2, pageWidth - 20, yPos - 2);
-      
+
       yPos += 5;
       doc.setFontSize(11);
-      
+
       const teamInfo = [
         ['Team Name:', team.teamName],
         ['Total Players:', team.totalPlayers],
@@ -318,7 +317,7 @@ const TeamManagement = () => {
         ['Created Date:', formatDate(team.createdAt)],
         ['Captain:', currentUser?.name || currentUser?.email || 'You']
       ];
-      
+
       teamInfo.forEach(([label, value]) => {
         doc.setFont('helvetica', 'bold');
         doc.text(label, 25, yPos);
@@ -326,20 +325,20 @@ const TeamManagement = () => {
         doc.text(String(value), 75, yPos);
         yPos += 8;
       });
-      
+
       if (members.length > 0) {
         yPos += 10;
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(30, 41, 59);
         doc.text('Team Members', 20, yPos);
-        
+
         yPos += 12;
         doc.setDrawColor(59, 130, 246);
         doc.line(20, yPos - 2, pageWidth - 20, yPos - 2);
-        
+
         yPos += 5;
-        
+
         const tableData = members.map((member, index) => [
           index + 1,
           member.name,
@@ -348,7 +347,7 @@ const TeamManagement = () => {
           member.email || '-',
           member.status || 'Pending'
         ]);
-        
+
         autoTable(doc, {
           startY: yPos,
           head: [['#', 'Name', 'Role', 'Mobile', 'Email', 'Status']],
@@ -399,15 +398,15 @@ const TeamManagement = () => {
         doc.setTextColor(107, 114, 128);
         doc.text('No team members added yet', pageWidth / 2, yPos, { align: 'center' });
       }
-      
+
       const finalY = doc.internal.pageSize.getHeight() - 20;
       doc.setFontSize(9);
       doc.setTextColor(156, 163, 175);
       doc.text('Generated by CDS Premier League', pageWidth / 2, finalY, { align: 'center' });
-      
+
       doc.save(`${team.teamName.replace(/\s+/g, '_')}_Team_Report_${new Date().getTime()}.pdf`);
       showNotification('success', 'PDF exported successfully!');
-      
+
     } catch (error) {
       console.error('Error generating PDF:', error);
       showNotification('error', 'Failed to generate PDF. Please try again.');
@@ -416,7 +415,7 @@ const TeamManagement = () => {
     }
   };
 
- 
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -428,15 +427,15 @@ const TeamManagement = () => {
 
   return (
     <>
-     <CaptainHeader 
+     <CaptainHeader
         currentUser={currentUser}
         onLogout={handleLogout}
         isExporting={isExporting}
       />
-    
+
     <div className="team-management">
       {/* Header Component */}
-     
+
 
       {/* Notification */}
       {notification.show && (
@@ -464,7 +463,7 @@ const TeamManagement = () => {
               <h2>{team.teamName}</h2>
 
               <div className="action-group">
-                <button 
+                <button
                   className="btn btn-secondary"
                   onClick={() => setShowAddPlayersModal(true)}
                   disabled={isExporting}
@@ -473,18 +472,18 @@ const TeamManagement = () => {
                 </button>
 
                 <div className="export-buttons">
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={exportToPDF}
                   disabled={isExporting}
                 >
                   {isExporting ? 'Exporting...' : 'Export PDF'}
                 </button>
-              
+
               </div>
               </div>
             </div>
-            
+
             <div className="team-info-details">
               <div className="info-item">
                 <span className="label">Team Name:</span>
@@ -523,14 +522,14 @@ const TeamManagement = () => {
               <h3>Team Members ({members.length})</h3>
               {members.length > 0 && (
                 <div className="view-toggle">
-                  <button 
+                  <button
                     className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
                     onClick={() => setViewMode('table')}
                     disabled={isExporting}
                   >
                     Table
                   </button>
-                  <button 
+                  <button
                     className={`view-btn ${viewMode === 'cards' ? 'active' : ''}`}
                     onClick={() => setViewMode('cards')}
                     disabled={isExporting}
@@ -540,12 +539,12 @@ const TeamManagement = () => {
                 </div>
               )}
             </div>
-            
+
             {members.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">👥</div>
                 <p>No players added yet.</p>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => setShowAddPlayersModal(true)}
                   disabled={isExporting}
@@ -645,7 +644,7 @@ const TeamManagement = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="card-details">
                           <div className="detail-item">
                             <span className="detail-label">Mobile:</span>
@@ -660,7 +659,7 @@ const TeamManagement = () => {
                             <span className="detail-value">{formatDate(member.createdAt)}</span>
                           </div>
                         </div>
-                        
+
                         <div className="card-actions">
                           <button
                             className="btn-icon edit"
@@ -698,7 +697,7 @@ const TeamManagement = () => {
               <div className="empty-icon">🏏</div>
               <h3>No Team Created Yet</h3>
               <p>Create your team to start managing players and participate in tournaments.</p>
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={() => setShowCreateTeamModal(true)}
                 disabled={isExporting}
@@ -716,8 +715,8 @@ const TeamManagement = () => {
           <div className="modal">
             <div className="modal-header">
               <h3>Create New Team</h3>
-              <button 
-                className="close-btn" 
+              <button
+                className="close-btn"
                 onClick={() => setShowCreateTeamModal(false)}
                 disabled={isExporting}
               >
@@ -750,16 +749,16 @@ const TeamManagement = () => {
                 </select>
               </div>
               <div className="modal-actions">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setShowCreateTeamModal(false)}
                   disabled={isExporting}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn btn-primary"
                   disabled={isExporting}
                 >
@@ -777,8 +776,8 @@ const TeamManagement = () => {
           <div className="modal wide-modal">
             <div className="modal-header">
               <h3>Add Players to Team</h3>
-              <button 
-                className="close-btn" 
+              <button
+                className="close-btn"
                 onClick={() => setShowAddPlayersModal(false)}
                 disabled={isExporting}
               >
@@ -802,7 +801,7 @@ const TeamManagement = () => {
                         </button>
                       )}
                     </div>
-                    
+
                     <div className="form-grid">
                       <div className="form-group">
                         <label>Name *</label>
@@ -855,25 +854,25 @@ const TeamManagement = () => {
               </div>
 
               <div className="form-actions">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={addPlayerRow}
                   disabled={isExporting}
                 >
                   + Add Another Player
                 </button>
                 <div className="modal-actions">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary" 
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
                     onClick={() => setShowAddPlayersModal(false)}
                     disabled={isExporting}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary"
                     disabled={isExporting}
                   >
@@ -892,8 +891,8 @@ const TeamManagement = () => {
           <div className="modal">
             <div className="modal-header">
               <h3>Edit Player</h3>
-              <button 
-                className="close-btn" 
+              <button
+                className="close-btn"
                 onClick={() => setShowEditModal(false)}
                 disabled={isExporting}
               >
@@ -944,16 +943,16 @@ const TeamManagement = () => {
                 />
               </div>
               <div className="modal-actions">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setShowEditModal(false)}
                   disabled={isExporting}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn btn-primary"
                   disabled={isExporting}
                 >
@@ -965,7 +964,7 @@ const TeamManagement = () => {
         </div>
       )}
     </div>
-    <Footer />
+
     </>
   );
 };

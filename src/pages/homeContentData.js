@@ -136,12 +136,12 @@ export const timeSlots = [
       badgeColor: "#34d399",
       icon: "wb_twilight",
       title: "MORNING MATCH SESSION",
-      time: "6:30 AM – 9:30 AM",
-      desc: "Crisp morning air, fresh dew on the outfield, prime seam movement conditions with maximum seam bowler assistance and swing.",
+      time: "6:00 AM to 9:00 AM",
+      desc: "Start the day with a fresh morning cricket session, ideal for teams that enjoy cool conditions and a focused game.",
       pitch: "Lively Grass / Seam Movement",
       format: "20 Overs / White Ball",
       btnText: "RESERVE MORNING SLOT",
-      slotKey: "Morning Slot (6:30 AM - 9:30 AM)"
+      slotKey: "Morning Slot (6:00 AM - 9:00 AM)"
     },
     {
       session: "SESSION 02",
@@ -149,12 +149,12 @@ export const timeSlots = [
       badgeColor: "#f59e0b",
       icon: "wb_sunny",
       title: "DAY MATCH SESSION",
-      time: "10:00 AM – 1:00 PM",
-      desc: "Optimal hard turf pitch conditions with true bounce and lightning-fast outfield. Ideal for power hitters and spin specialists.",
+      time: "9:30 AM to 12:30 PM",
+      desc: "A full day cricket match session with clear daylight, competitive overs and enough time for your complete squad.",
       pitch: "Hard Turf / True Bounce",
       format: "20 Overs / White Ball",
       btnText: "RESERVE DAY SLOT",
-      slotKey: "Day Slot (10:00 AM - 1:00 PM)"
+      slotKey: "Day Slot (9:30 AM - 12:30 PM)"
     },
     {
       session: "SESSION 03",
@@ -162,24 +162,11 @@ export const timeSlots = [
       badgeColor: "#34d399",
       icon: "cloud_sun",
       title: "EVENING MATCH SESSION",
-      time: "5:00 PM – 8:00 PM",
-      desc: "Golden-hour match conditions transitioning under the initial stadium floodlights. Electrifying crowd energy, music, and super overs.",
-      pitch: "Twilight / Early Floodlights",
+      time: "1:00 PM to 4:00 PM",
+      desc: "An afternoon cricket match session for teams looking to play after the day session and finish before evening.",
+      pitch: "Daylight Turf / Fast Outfield",
       format: "20 Overs / White Ball",
       btnText: "RESERVE EVENING SLOT",
-      slotKey: "Evening Slot (5:00 PM - 8:00 PM)"
-    },
-    {
-      session: "SESSION 04",
-      badge: "PRIME TIME",
-      badgeColor: "#f59e0b",
-      icon: "bedtime",
-      title: "NIGHT MATCH SESSION",
-      time: "8:30 PM – 11:30 PM",
-      desc: "Championship stadium cricket under 50,000-lux high-mast floodlights. High voltage broadcast environment with live scoreboards.",
-      pitch: "Floodlit Turf / Fast Outfield",
-      format: "20 Overs / White Ball",
-      btnText: "RESERVE NIGHT SLOT",
-      slotKey: "Night Slot (8:30 PM - 11:30 PM)"
+      slotKey: "Evening Slot (1:00 PM - 4:00 PM)"
     }
   ];

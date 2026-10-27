@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Create axios instance
 const API = axios.create({
-  // baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
-  baseURL: import.meta.env.VITE_API_URL || "https://backend.cdspremierleague.com/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
+  // baseURL: import.meta.env.VITE_API_URL || "https://backend.cdspremierleague.com/api",
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
@@ -11,10 +11,10 @@ const API = axios.create({
 });
 
 // // Separate constants for image URL
-// export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || "http://localhost:4000";
-// export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
-export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || "https://backend.cdspremierleague.com";
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend.cdspremierleague.com/api";
+export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || "http://localhost:4000";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+// export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || "https://backend.cdspremierleague.com";
+// export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://backend.cdspremierleague.com/api";
 // Request interceptor
 API.interceptors.request.use(
   (config) => {

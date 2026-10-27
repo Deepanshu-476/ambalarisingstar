@@ -84,7 +84,6 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ResponsiveHeader from "../components/AdminHeader";
-import Footer from "../components/footer";
 const API_BASE_URL = "http://localhost:4000";
 
 // Animation variants
@@ -99,13 +98,13 @@ const containerVariants = {
 };
 const isDateBeforeToday = (dateString) => {
   if (!dateString) return false;
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const date = new Date(dateString);
   date.setHours(0, 0, 0, 0);
-  
+
   return date < today;
 };
 const itemVariants = {
@@ -132,7 +131,7 @@ export default function SlotsPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [tabValue, setTabValue] = useState(0);
-  
+
   // Slot states
   const [slots, setSlots] = useState([]);
   const [slotLoading, setSlotLoading] = useState(false);
@@ -143,13 +142,13 @@ export default function SlotsPage() {
     message: "",
     severity: "success"
   });
-  
+
   // Calendar view states
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [selectedDateSlots, setSelectedDateSlots] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showDateSlots, setShowDateSlots] = useState(false);
-  
+
   // Expanded slot states
   const [expandedSlot, setExpandedSlot] = useState(null);
 
@@ -159,6 +158,7 @@ export default function SlotsPage() {
 
   // Bulk slot states
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [generatingSlots, setGeneratingSlots] = useState(false);
   const [disableDateDialog, setDisableDateDialog] = useState(false);
 
   const [bulkSlotData, setBulkSlotData] = useState({
@@ -200,28 +200,28 @@ export default function SlotsPage() {
     setSlotLoading(true);
     const res = await API.get("/admin/slots");
     const slotsData = res.data.data || [];
-    
+
     // Filter out past slots
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const filteredSlots = slotsData.filter(slot => {
       const slotDate = new Date(slot.slotDate);
       slotDate.setHours(0, 0, 0, 0);
       return slotDate >= today; // Only keep today and future slots
     });
-    
+
     setSlots(filteredSlots);
-    
+
     // Prepare calendar events - Only show future dates with slots
     const dateEvents = {};
     filteredSlots.forEach(slot => {
       const slotDate = new Date(slot.slotDate).toISOString().split('T')[0];
       const todayStr = today.toISOString().split('T')[0];
-      
+
       // Skip if date is in past
       if (slotDate < todayStr) return;
-      
+
       if (!dateEvents[slotDate]) {
         dateEvents[slotDate] = {
           totalSlots: 0,
@@ -230,7 +230,7 @@ export default function SlotsPage() {
           disabledSlots: 0
         };
       }
-      
+
       dateEvents[slotDate].totalSlots++;
       if (slot.isDisabled) {
         dateEvents[slotDate].disabledSlots++;
@@ -239,7 +239,7 @@ export default function SlotsPage() {
       }
       dateEvents[slotDate].bookedCount += slot.bookedCount || 0;
     });
-    
+
     const events = Object.keys(dateEvents).map(date => {
       const data = dateEvents[date];
       return {
@@ -247,7 +247,7 @@ export default function SlotsPage() {
         title: `${data.activeSlots} slots`,
         start: date,
         allDay: true,
-        color: data.disabledSlots > 0 ? '#dc3545' : 
+        color: data.disabledSlots > 0 ? '#dc3545' :
                data.activeSlots === 0 ? '#6c757d' : '#007bff',
         extendedProps: {
           date: date,
@@ -258,7 +258,7 @@ export default function SlotsPage() {
         }
       };
     });
-    
+
     setCalendarEvents(events);
   } catch (err) {
     showSnackbar("Failed to fetch slots", "error");
@@ -285,7 +285,7 @@ export default function SlotsPage() {
         await API.put(`/admin/slots/${editingSlot._id}`, slotData);
         showSnackbar("Slot updated successfully!");
       } else {
-        await API.post("/admin/slots", slotData);
+        await API.post("/admin/slots/create", slotData);
         showSnackbar("Slot created successfully!");
       }
       fetchSlots();
@@ -334,7 +334,9 @@ export default function SlotsPage() {
 
   /* ================= GENERATE FUTURE SLOTS ================= */
   const generateFutureSlots = async () => {
+    if (generatingSlots) return;
     try {
+      setGeneratingSlots(true);
        if (isDateBeforeToday(bulkSlotData.startDate)) {
         showSnackbar("Cannot generate slots for past dates", "warning");
         return;
@@ -343,12 +345,12 @@ export default function SlotsPage() {
         ...bulkSlotData,
         capacity: 2
       };
-      
+
       await API.post("/admin/slots/generate-future", bulkData);
       showSnackbar("Future slots generated successfully");
       setBulkDialogOpen(false);
       fetchSlots();
-      
+
       // Reset bulk slot data
       setBulkSlotData({
         startDate: "",
@@ -359,6 +361,8 @@ export default function SlotsPage() {
       });
     } catch (err) {
       showSnackbar(err?.response?.data?.message || "Failed to generate slots", "error");
+    } finally {
+      setGeneratingSlots(false);
     }
   };
 
@@ -369,11 +373,11 @@ export default function SlotsPage() {
         showSnackbar("Cannot disable slots for past dates", "warning");
         return;
       }
-      await API.post("/admin/slots/disable-by-date", disableDate);
+      await API.post("/admin/slots/disable-date", disableDate);
       showSnackbar(`Slots disabled for ${disableDate.slotDate}`);
       setDisableDateDialog(false);
       fetchSlots();
-      
+
       // Reset disable date data
       setDisableDate({
         slotDate: ""
@@ -391,13 +395,13 @@ export default function SlotsPage() {
   const handleDateClick = (info) => {
     const clickedDate = info.dateStr;
     setSelectedDate(clickedDate);
-    
+
     // Filter slots for selected date
     const dateSlots = slots.filter(slot => {
       const slotDate = new Date(slot.slotDate).toISOString().split('T')[0];
       return slotDate === clickedDate;
     });
-    
+
     setSelectedDateSlots(dateSlots);
     setShowDateSlots(true);
   };
@@ -405,13 +409,13 @@ export default function SlotsPage() {
   const handleEventClick = (info) => {
     const clickedDate = info.event.extendedProps.date;
     setSelectedDate(clickedDate);
-    
+
     // Filter slots for selected date
     const dateSlots = slots.filter(slot => {
       const slotDate = new Date(slot.slotDate).toISOString().split('T')[0];
       return slotDate === clickedDate;
     });
-    
+
     setSelectedDateSlots(dateSlots);
     setShowDateSlots(true);
   };
@@ -508,7 +512,7 @@ export default function SlotsPage() {
             justifyContent: 'center',
             marginLeft: '8px'
           }}>
-            {React.cloneElement(icon, { 
+            {React.cloneElement(icon, {
               fontSize: isMobile ? "small" : "medium",
               style: { color: color }
             })}
@@ -540,7 +544,7 @@ export default function SlotsPage() {
     const borderColor = slot.isDisabled ? '#f44336' :
                        slot.bookedCount >= slot.capacity ? '#4caf50' :
                        '#1976d2';
-    
+
     return (
       <div style={{
         marginBottom: '16px',
@@ -573,25 +577,25 @@ export default function SlotsPage() {
                 Capacity: {slot.bookedCount || 0}/{slot.capacity}
               </div>
             </div>
-            
+
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}>
               <div style={{
-                backgroundColor: slot.isDisabled ? '#ffebee' : 
+                backgroundColor: slot.isDisabled ? '#ffebee' :
                                slot.bookedCount >= slot.capacity ? '#e8f5e9' : '#e3f2fd',
-                color: slot.isDisabled ? '#d32f2f' : 
+                color: slot.isDisabled ? '#d32f2f' :
                        slot.bookedCount >= slot.capacity ? '#2e7d32' : '#1976d2',
                 padding: '4px 12px',
                 borderRadius: '16px',
                 fontSize: '12px',
                 fontWeight: '500',
-                border: `1px solid ${slot.isDisabled ? '#f44336' : 
+                border: `1px solid ${slot.isDisabled ? '#f44336' :
                         slot.bookedCount >= slot.capacity ? '#4caf50' : '#1976d2'}`
               }}>
-                {slot.isDisabled ? "Disabled" : 
+                {slot.isDisabled ? "Disabled" :
                  slot.bookedCount >= slot.capacity ? "Full" : "Available"}
               </div>
               <MuiIconButton
@@ -603,7 +607,7 @@ export default function SlotsPage() {
               </MuiIconButton>
             </div>
           </div>
-          
+
           {/* Booking Information (Always Visible) */}
           {slot.bookedTeams && slot.bookedTeams.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
@@ -635,7 +639,7 @@ export default function SlotsPage() {
               </div>
             </div>
           )}
-          
+
           {/* Expanded Details */}
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <div style={{
@@ -661,10 +665,10 @@ export default function SlotsPage() {
                         alignItems: 'center',
                         marginBottom: '8px'
                       }}>
-                        <PersonIcon style={{ 
-                          marginRight: '8px', 
-                          color: '#1976d2', 
-                          fontSize: '16px' 
+                        <PersonIcon style={{
+                          marginRight: '8px',
+                          color: '#1976d2',
+                          fontSize: '16px'
                         }} />
                         <div style={{ fontSize: '14px', color: '#333' }}>{team}</div>
                       </div>
@@ -680,7 +684,7 @@ export default function SlotsPage() {
                   No teams booked for this slot
                 </div>
               )}
-              
+
               {/* Slot Actions */}
               <div style={{
                 display: 'flex',
@@ -787,7 +791,7 @@ export default function SlotsPage() {
 
   return (
     <>
-    <ResponsiveHeader 
+    <ResponsiveHeader
               title="CDS Premier League"
               subtitle="Team Slots Management"
             />
@@ -841,7 +845,7 @@ export default function SlotsPage() {
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
               <div style={{
                   display: 'grid',
-                  gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 
+                  gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' :
                                     isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
                   gap: isMobile ? '8px' : '16px',
                   marginBottom: isMobile ? '16px' : '32px'
@@ -855,7 +859,7 @@ export default function SlotsPage() {
                     index={0}
                   />
                 </div>
-                
+
                 <div>
                   <StatCard
                     title="Total Slots"
@@ -865,7 +869,7 @@ export default function SlotsPage() {
                     index={1}
                   />
                 </div>
-                
+
                 <div>
                   <StatCard
                     title="Active Slots"
@@ -875,7 +879,7 @@ export default function SlotsPage() {
                     index={2}
                   />
                 </div>
-                
+
                 <div>
                   <StatCard
                     title="Bookings"
@@ -915,11 +919,11 @@ export default function SlotsPage() {
                     fontWeight: '500',
                     color: '#333'
                   }}>
-                    Slots for {selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    Slots for {selectedDate ? new Date(selectedDate).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     }) : ''}
                   </div>
                 ) : (
@@ -932,7 +936,7 @@ export default function SlotsPage() {
                   </div>
                 )}
               </div>
-              
+
               {!showDateSlots && !isMobile && (
                 <div style={{
                   display: 'flex',
@@ -988,7 +992,7 @@ export default function SlotsPage() {
                 </div>
               )}
             </div>
-            
+
             {/* MOBILE ACTION BUTTONS */}
             {!showDateSlots && isMobile && (
               <div style={{
@@ -1048,13 +1052,13 @@ export default function SlotsPage() {
 
             {/* CALENDAR VIEW */}
             {!showDateSlots ? (
-              <div style={{ 
-                padding: isMobile ? '8px' : '16px' 
+              <div style={{
+                padding: isMobile ? '8px' : '16px'
               }}>
                 {/* Calendar */}
                 <FullCalendar
                   plugins={[dayGridPlugin, interactionPlugin]}
-                  initialView="dayGridMonth"  
+                  initialView="dayGridMonth"
                   headerToolbar={{
                     left: 'prev,next today',
                     center: 'title',
@@ -1065,7 +1069,7 @@ export default function SlotsPage() {
                     const clickedDate = new Date(info.dateStr);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    
+
                     if (clickedDate < today) {
                       showSnackbar("Cannot view slots for past dates", "warning");
                       return;
@@ -1076,7 +1080,7 @@ export default function SlotsPage() {
                     const clickedDate = new Date(info.event.extendedProps.date);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    
+
                     if (clickedDate < today) {
                       showSnackbar("Cannot view slots for past dates", "warning");
                       return;
@@ -1098,7 +1102,7 @@ export default function SlotsPage() {
                     today.setHours(0, 0, 0, 0);
                     const cellDate = new Date(arg.date);
                     cellDate.setHours(0, 0, 0, 0);
-                    
+
                     if (cellDate < today) {
                       return ['fc-past-date-disabled'];
                     }
@@ -1108,13 +1112,13 @@ export default function SlotsPage() {
                     const eventDate = new Date(eventInfo.event.startStr);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    
+
                     if (eventDate < today) {
                       return null; // Don't show events for past dates
                     }
-                    
+
                     const hasBookings = eventInfo.event.extendedProps.bookedCount > 0;
-                    
+
                     return (
                       <div style={{ padding: '4px' }}>
                         <div
@@ -1150,7 +1154,7 @@ export default function SlotsPage() {
                     );
                   }}
                 />
-                
+
                 {/* Calendar Legend */}
                 <div style={{
                   padding: '16px',
@@ -1239,11 +1243,11 @@ export default function SlotsPage() {
                         fontWeight: 'bold',
                         marginBottom: '8px'
                       }}>
-                        {new Date(selectedDate).toLocaleDateString('en-US', { 
-                          weekday: 'long', 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
+                        {new Date(selectedDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
                         })}
                       </div>
                       <div style={{
@@ -1253,7 +1257,7 @@ export default function SlotsPage() {
                         Click on any slot to expand and view booking details
                       </div>
                     </div>
-                    
+
                     <div style={{
                       marginTop: isMobile ? '16px' : '0'
                     }}>
@@ -1491,10 +1495,10 @@ export default function SlotsPage() {
           </div>
 
           {/* CREATE/EDIT SLOT DIALOG - RESPONSIVE */}
-          <Dialog 
-            open={slotDialogOpen} 
-            onClose={() => setSlotDialogOpen(false)} 
-            maxWidth="sm" 
+          <Dialog
+            open={slotDialogOpen}
+            onClose={() => setSlotDialogOpen(false)}
+            maxWidth="sm"
             fullWidth
             fullScreen={isMobile}
           >
@@ -1718,10 +1722,10 @@ export default function SlotsPage() {
           </Dialog>
 
           {/* DISABLE DATE DIALOG */}
-          <Dialog 
-            open={disableDateDialog} 
-            onClose={() => setDisableDateDialog(false)} 
-            maxWidth="xs" 
+          <Dialog
+            open={disableDateDialog}
+            onClose={() => setDisableDateDialog(false)}
+            maxWidth="xs"
             fullWidth
             fullScreen={isMobile}
           >
@@ -1803,10 +1807,10 @@ export default function SlotsPage() {
           </Dialog>
 
           {/* GENERATE FUTURE SLOTS DIALOG */}
-          <Dialog 
-            open={bulkDialogOpen} 
-            onClose={() => setBulkDialogOpen(false)} 
-            maxWidth="sm" 
+          <Dialog
+            open={bulkDialogOpen}
+            onClose={() => setBulkDialogOpen(false)}
+            maxWidth="sm"
             fullWidth
             fullScreen={isMobile}
           >
@@ -1969,6 +1973,7 @@ export default function SlotsPage() {
               </button>
               <button
                 onClick={generateFutureSlots}
+                disabled={generatingSlots}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '4px',
@@ -1976,10 +1981,11 @@ export default function SlotsPage() {
                   backgroundColor: '#1976d2',
                   color: 'white',
                   fontSize: '14px',
-                  cursor: 'pointer'
+                  cursor: generatingSlots ? 'not-allowed' : 'pointer',
+                  opacity: generatingSlots ? 0.7 : 1
                 }}
               >
-                Generate
+                {generatingSlots ? 'Generating...' : 'Generate'}
               </button>
             </DialogActions>
           </Dialog>
@@ -1989,9 +1995,9 @@ export default function SlotsPage() {
             open={snackbar.open}
             autoHideDuration={3000}
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ 
-              vertical: isMobile ? "top" : "bottom", 
-              horizontal: isMobile ? "center" : "right" 
+            anchorOrigin={{
+              vertical: isMobile ? "top" : "bottom",
+              horizontal: isMobile ? "center" : "right"
             }}
             style={{
               position: 'fixed',
@@ -2002,8 +2008,8 @@ export default function SlotsPage() {
               style={{
                 padding: '16px',
                 borderRadius: '4px',
-                backgroundColor: snackbar.severity === 'error' ? '#f44336' : 
-                               snackbar.severity === 'warning' ? '#ff9800' : 
+                backgroundColor: snackbar.severity === 'error' ? '#f44336' :
+                               snackbar.severity === 'warning' ? '#ff9800' :
                                snackbar.severity === 'info' ? '#2196f3' : '#4caf50',
                 color: 'white',
                 fontSize: '14px',
@@ -2017,7 +2023,7 @@ export default function SlotsPage() {
         </div>
       </div>
     </motion.div>
-    <Footer />
+
     </>
   );
 }

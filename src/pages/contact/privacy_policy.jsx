@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Header from "../components/header";
-import Footer from "../components/footer";
 import "./privacy_policy.css";
 
 const PrivacyPolicy = () => {
@@ -58,7 +56,7 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="privacy-page-wrapper">
-      <Header />
+
 
       {/* Hero Section */}
       <section className="privacy-hero">
@@ -704,7 +702,7 @@ const PrivacyPolicy = () => {
         </main>
       </div>
 
-      <Footer />
+
     </div>
   );
 };

@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Calendar, Clock, MapPin, Users, CalendarDays, Loader2, Download, Grid, List, AlertCircle, User, LogOut, Home, AlertTriangle } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, CalendarDays, Loader2, Download, Grid, List, AlertCircle, AlertTriangle } from 'lucide-react';
 import API from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
-import '../booking/Booking.css';
-import CaptainHeader from '../../component/Captain.header';
-import Footer from '../components/footer';
+import './booking.css';
+
 const SlotBooking = () => {
   const navigate = useNavigate();
-  
+
   // State declarations
   const [team, setTeam] = useState(null);
   const [members, setMembers] = useState([]);
@@ -19,13 +18,13 @@ const SlotBooking = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [bookingLoading, setBookingLoading] = useState({});
+  const [bookingLoading] = useState({});
   const [slotView, setSlotView] = useState('grid');
   const [teamBookings, setTeamBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [debugMode, setDebugMode] = useState(false);
+  const debugMode = false;
 
   // Use refs to track loading state
   const isFetchingTeamData = useRef(false);
@@ -36,10 +35,10 @@ const SlotBooking = () => {
     console.log('🔄 [FRONTEND] Step 1: Getting current user from localStorage');
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    
+
     console.log(`🔑 Token exists: ${!!token}`);
     console.log(`👤 User exists: ${!!user}`);
-    
+
     if (user) {
       try {
         const parsedUser = JSON.parse(user);
@@ -71,29 +70,6 @@ const SlotBooking = () => {
     }, 4000);
   }, []);
 
-  // Test captain existence function
-  const testCaptainExistence = useCallback(async () => {
-    if (!currentUser?._id) return;
-    
-    try {
-      console.log('🔍 [FRONTEND] Testing captain existence for:', currentUser._id);
-      const res = await API.get(`/bookings/test-captain/${currentUser._id}`);
-      console.log('✅ [FRONTEND] Test result:', res.data);
-      
-      if (res.data.exists) {
-        console.log(`🎯 Captain verified: ${res.data.user.name}`);
-        return true;
-      } else {
-        console.warn('⚠️ Captain not found in database');
-        showNotification('error', 'Your account was not found in database. Please contact support.');
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ [FRONTEND] Test failed:', error);
-      return false;
-    }
-  }, [currentUser, showNotification]);
-
   // Fetch team bookings
   const fetchTeamBookings = useCallback(async (teamId) => {
     if (isFetchingBookings.current) {
@@ -102,19 +78,19 @@ const SlotBooking = () => {
     }
 
     console.log('🔄 [FRONTEND] Fetching team bookings for team:', teamId);
-    
+
     try {
       isFetchingBookings.current = true;
       setLoadingBookings(true);
-      
+
       if (!teamId) {
         console.warn('⚠️ [FRONTEND] No team ID provided');
         return;
       }
-      
+
       const res = await API.get(`/bookings/team/${teamId}`);
       console.log(`✅ [FRONTEND] Found ${res.data.bookings?.length || 0} bookings`);
-      
+
       if (res.data.success) {
         setTeamBookings(res.data.bookings || []);
       }
@@ -138,19 +114,19 @@ const SlotBooking = () => {
     }
 
     console.log('🔄 [FRONTEND] Fetching team data');
-    
+
     try {
       isFetchingTeamData.current = true;
       setLoading(true);
-      
+
       const response = await API.get('/team/my-team');
       console.log('✅ [FRONTEND] Team API response:', response.data);
-      
+
       if (response.data.success) {
         console.log('🏢 [FRONTEND] Team data received:', response.data.team);
         setTeam(response.data.team);
         setMembers(response.data.members || []);
-        
+
         // Fetch team bookings
         if (response.data.team?._id) {
           console.log('🆔 [FRONTEND] Team ID found:', response.data.team._id);
@@ -162,13 +138,13 @@ const SlotBooking = () => {
       }
     } catch (error) {
       console.error('❌ [FRONTEND] Error fetching team:', error);
-      
+
       if (error.response?.status === 401) {
         showNotification('error', 'Session expired. Please login again.');
         handleLogout();
       } else {
-        showNotification('error', 
-          error.response?.data?.message || 
+        showNotification('error',
+          error.response?.data?.message ||
           'Failed to fetch team data. Please try again.'
         );
       }
@@ -189,10 +165,10 @@ const SlotBooking = () => {
   // Fetch slots by date
   const fetchSlotsByDate = useCallback(async (date) => {
     console.log(`🔄 [FRONTEND] Fetching slots for date: ${date}`);
-    
+
     try {
       const res = await API.get(`/slots/by-date?date=${date}`);
-      
+
       if (res.data.success) {
         const slotsWithRemaining = res.data.data.map(slot => ({
           ...slot,
@@ -203,7 +179,7 @@ const SlotBooking = () => {
       }
     } catch (err) {
       console.error('❌ [FRONTEND] Error fetching slots:', err);
-      
+
       if (err.response?.status === 401) {
         showNotification('error', 'Session expired. Please login again.');
         handleLogout();
@@ -276,7 +252,7 @@ const SlotBooking = () => {
   // Cancel booking - FIXED VERSION
   const handleCancelBooking = async (bookingId) => {
     console.log(`🔄 [FRONTEND] Starting cancellation for booking: ${bookingId}`);
-    
+
     if (!window.confirm('Are you sure you want to cancel this booking?')) {
       console.log('❌ [FRONTEND] Cancellation cancelled by user');
       return;
@@ -285,11 +261,11 @@ const SlotBooking = () => {
     try {
       const res = await API.delete(`/bookings/cancel/${bookingId}`);
       console.log('✅ [FRONTEND] Cancel API response:', res.data);
-      
+
       if (res.data.success) {
         console.log('✅ [FRONTEND] Booking cancelled successfully');
         showNotification("success", "Booking cancelled successfully!");
-        
+
         // Refresh data
         fetchSlotsByDate(selectedDate);
         if (team?._id) {
@@ -299,24 +275,24 @@ const SlotBooking = () => {
         // Handle backend error
         showNotification("error", res.data.message || "Cancellation failed");
       }
-      
+
     } catch (err) {
       console.error('❌ [FRONTEND] Cancel booking error:', err);
       console.error('📊 [FRONTEND] Error response:', err.response?.data);
       console.error('🔢 [FRONTEND] Error status:', err.response?.status);
-      
+
       let errorMessage = "Cancellation failed. Please try again.";
-      
+
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
-        
+
         if (errorMessage.includes('not authorized')) {
           errorMessage = "You are not authorized to cancel this booking";
         } else if (errorMessage.includes('Booking not found')) {
           errorMessage = "Booking not found or already cancelled";
         }
       }
-      
+
       showNotification("error", errorMessage);
     }
   };
@@ -361,49 +337,48 @@ const SlotBooking = () => {
 
     try {
       setIsExporting(true);
-      
+
       const doc = new jsPDF('p', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      
+
       // Header
       doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(30, 58, 138);
       doc.text('Team Bookings Report', pageWidth / 2, 25, { align: 'center' });
-      
+
       // Team info
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(75, 85, 99);
       doc.text(team.teamName, pageWidth / 2, 35, { align: 'center' });
-      
+
       // Generated date
       doc.setFontSize(10);
       doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 42, { align: 'center' });
-      
+
       // Team information section
       let yPos = 55;
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(30, 41, 59);
       doc.text('Team Information', 20, yPos);
-      
+
       yPos += 12;
       doc.setDrawColor(59, 130, 246);
       doc.setLineWidth(0.5);
       doc.line(20, yPos - 2, pageWidth - 20, yPos - 2);
-      
+
       yPos += 5;
       doc.setFontSize(11);
-      
+
       const teamInfo = [
         ['Team Name:', team.teamName],
         ['Total Players:', team.totalPlayers],
         ['Active Bookings:', teamBookings.length],
         ['Captain:', currentUser?.name || 'You']
       ];
-      
+
       teamInfo.forEach(([label, value]) => {
         doc.setFont('helvetica', 'bold');
         doc.text(label, 25, yPos);
@@ -411,18 +386,18 @@ const SlotBooking = () => {
         doc.text(String(value), 70, yPos);
         yPos += 8;
       });
-      
+
       // Booking history table
       yPos += 10;
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(30, 41, 59);
       doc.text('Booking History', 20, yPos);
-      
+
       yPos += 12;
       doc.setDrawColor(59, 130, 246);
       doc.line(20, yPos - 2, pageWidth - 20, yPos - 2);
-      
+
       const tableData = teamBookings.map((booking, index) => [
         index + 1,
         formatDate(booking.slotId?.slotDate),
@@ -432,7 +407,7 @@ const SlotBooking = () => {
         booking.paymentStatus,
         formatDate(booking.createdAt)
       ]);
-      
+
       autoTable(doc, {
         startY: yPos + 5,
         head: [['#', 'Date', 'Time', 'Ground', 'Status', 'Payment', 'Booked On']],
@@ -450,19 +425,19 @@ const SlotBooking = () => {
           textColor: [51, 65, 85]
         }
       });
-      
+
       // Footer
       const finalY = doc.internal.pageSize.getHeight() - 20;
       doc.setFontSize(9);
       doc.setTextColor(156, 163, 175);
       doc.text('Generated by CDS Premier League', pageWidth / 2, finalY, { align: 'center' });
-      
+
       // Save PDF
       const fileName = `${team.teamName.replace(/\s+/g, '_')}_Bookings_${new Date().getTime()}.pdf`;
       doc.save(fileName);
-      
+
       showNotification('success', 'Bookings PDF exported successfully!');
-      
+
     } catch (error) {
       console.error('❌ [FRONTEND] Error generating PDF:', error);
       showNotification('error', 'Failed to generate PDF. Please try again.');
@@ -471,79 +446,10 @@ const SlotBooking = () => {
     }
   };
 
-  // Custom Header Component
-  const Header = () => (
-    <header className="booking-header">
-      <div className="header-container">
-        <div className="header-left">
-          <div className="logo" onClick={() => navigate('/dashboard')}>
-            <Home size={28} />
-            <span className="logo-text">Yamunanager Ground Stadium</span>
-          </div>
-          <h1>Slot Booking</h1>
-        </div>
-        
-        <div className="header-right">
-          {currentUser && (
-            <div className="user-info">
-              <User size={20} />
-              <div className="user-details">
-                <span className="user-name">{currentUser.name || 'Captain'}</span>
-                <span className="user-role">Team Captain</span>
-              </div>
-            </div>
-          )}
-          
-          <div className="header-actions">
-            <button 
-              className="btn-header btn-dashboard"
-              onClick={() => navigate('/dashboard')}
-              title="Dashboard"
-            >
-              Dashboard
-            </button>
-            <button 
-              className="btn-header btn-team"
-              onClick={() => navigate('/team')}
-              title="Team Management"
-            >
-              My Team
-            </button>
-            {debugMode && (
-              <button 
-                className="btn-header btn-debug"
-                onClick={testCaptainExistence}
-                title="Test Captain Verification"
-              >
-                Test Captain
-              </button>
-            )}
-            <button 
-              className="btn-header btn-debug-toggle"
-              onClick={() => setDebugMode(!debugMode)}
-              title="Toggle Debug Mode"
-            >
-              {debugMode ? '🔧 Debug ON' : '🔧 Debug'}
-            </button>
-            <button 
-              className="btn-header btn-logout"
-              onClick={handleLogout}
-              title="Logout"
-              disabled={isExporting}
-            >
-              <LogOut size={18} />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-
   // Slot Card Component
   const SlotCard = ({ slot, onBook }) => {
-    const isSlotBookable = !slot.isFull && 
-      team?._id && 
+    const isSlotBookable = !slot.isFull &&
+      team?._id &&
       members.length >= 7 &&
       !slot.bookedTeams?.includes(team?.teamName);
 
@@ -563,7 +469,7 @@ const SlotBooking = () => {
             <span>{formatSlotDate(slot.slotDate)}</span>
           </div>
         </div>
-        
+
         <div className="slot-card-body">
           <div className="slot-info">
             <div className="info-item">
@@ -575,12 +481,12 @@ const SlotBooking = () => {
               <span>Capacity: {slot.capacity} teams</span>
             </div>
           </div>
-          
+
           <div className="slot-availability">
             <div className="availability-meter">
-              <div 
+              <div
                 className="meter-fill"
-                style={{ 
+                style={{
                   width: `${(bookedCount / slot.capacity) * 100}%`,
                   backgroundColor: slot.isFull ? '#ef4444' : '#10b981'
                 }}
@@ -591,7 +497,7 @@ const SlotBooking = () => {
               <span className="remaining">{remaining} available</span>
             </div>
           </div>
-          
+
           {slot.bookedTeams && slot.bookedTeams.length > 0 && (
             <div className="booked-teams">
               <p className="teams-label">Booked by:</p>
@@ -610,7 +516,7 @@ const SlotBooking = () => {
             </div>
           )}
         </div>
-        
+
         <div className="slot-card-footer">
           {isAlreadyBooked ? (
             <button className="btn btn-success booked-btn" disabled>
@@ -621,7 +527,7 @@ const SlotBooking = () => {
               <AlertTriangle size={16} /> Fully Booked
             </button>
           ) : isSlotBookable ? (
-            <button 
+            <button
               className="btn btn-primary"
               onClick={() => onBook(slot._id)}
               disabled={bookingLoading[slot._id]}
@@ -656,7 +562,7 @@ const SlotBooking = () => {
             {booking.bookingStatus}
           </span>
         </div>
-        
+
         <div className="booking-details">
           <div className="detail-row">
             <span className="detail-label">Time:</span>
@@ -683,7 +589,7 @@ const SlotBooking = () => {
             </span>
           </div>
         </div>
-        
+
         {booking.bookingStatus === 'confirmed' && (
           <div className="booking-actions">
             <button
@@ -710,14 +616,10 @@ const SlotBooking = () => {
 
   return (
     <>
-   <CaptainHeader 
-        currentUser={currentUser}
-        onLogout={handleLogout}
-        isExporting={isExporting}
-      />
+
     <div className="slot-booking-page">
       {/* Header */}
-      <Header />
+      <div className="booking-page-intro"><button type="button" className="booking-back-link" onClick={() => navigate('/captain')}>Back to dashboard</button><p className="page-eyebrow">YOUR NEXT INNINGS</p><h1>Book your match slot.</h1><p>Choose your session and get your team ready for the ground.</p></div>
 
       {/* Notification */}
       {notification.show && (
@@ -768,7 +670,7 @@ const SlotBooking = () => {
               />
             </div>
             <div className="view-toggle">
-              <button 
+              <button
                 className={`view-btn ${slotView === 'grid' ? 'active' : ''}`}
                 onClick={() => setSlotView('grid')}
                 disabled={isExporting}
@@ -776,16 +678,16 @@ const SlotBooking = () => {
                 <Grid size={16} />
                 Grid
               </button>
-              <button 
+              <button
                 className={`view-btn ${slotView === 'list' ? 'active' : ''}`}
                 onClick={() => setSlotView('list')}
                 disabled={isExporting}
               >
                 <List size={16} />
                 List
-              </button>     
+              </button>
               {teamBookings.length > 0 && (
-                <button 
+                <button
                   className="btn btn-primary btn-export"
                   onClick={exportBookingsToPDF}
                   disabled={isExporting}
@@ -793,7 +695,7 @@ const SlotBooking = () => {
                   <Download size={18} />
                   {isExporting ? 'Exporting...' : 'Export Bookings PDF'}
                 </button>
-              )}         
+              )}
             </div>
           </div>
         </div>
@@ -805,7 +707,7 @@ const SlotBooking = () => {
 
     <div className="team-header-row">
       <h3>
-        📋 Booking for :  
+        📋 Booking for :
         <span className="team-name-highlight">{team.teamName}</span>
       </h3>
 
@@ -833,7 +735,7 @@ const SlotBooking = () => {
               <AlertCircle size={32} />
               <h3>No Team Found</h3>
               <p>You need to create a team first before booking slots.</p>
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={() => navigate('/team')}
                 disabled={isExporting}
@@ -852,7 +754,7 @@ const SlotBooking = () => {
               <p>You need at least <strong>7 players</strong> in your team to book a slot.</p>
               <p>Currently you have <strong>{members.length} players</strong>.</p>
             </div>
-            <button 
+            <button
               className="btn btn-primary btn-sm"
               onClick={() => navigate('/team')}
             >
@@ -866,7 +768,7 @@ const SlotBooking = () => {
           <div className="your-bookings-section">
             <div className="section-header">
               <h3>Your Bookings ({teamBookings.length})</h3>
-              <button 
+              <button
                 className="btn btn-sm btn-secondary"
                 onClick={() => fetchTeamBookings(team._id)}
                 disabled={loadingBookings}
@@ -895,7 +797,7 @@ const SlotBooking = () => {
             <h3>Available Slots for {formatSlotDate(selectedDate)}</h3>
             <div className="slots-header-right">
               <span className="slots-count">{slots.length} slots available</span>
-              <button 
+              <button
                 className="btn btn-sm btn-secondary"
                 onClick={() => fetchSlotsByDate(selectedDate)}
               >
@@ -912,7 +814,7 @@ const SlotBooking = () => {
               </div>
             ) : (
               slots.map(slot => (
-                <SlotCard 
+                <SlotCard
                   key={slot._id}
                   slot={slot}
                   onBook={handleBookSlot}
@@ -923,11 +825,11 @@ const SlotBooking = () => {
         </div>
       </div>
     </div>
-    <Footer />
+
     </>
   );
-  
-  
+
+
 };
 
 export default SlotBooking;

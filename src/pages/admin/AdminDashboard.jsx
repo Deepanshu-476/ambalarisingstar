@@ -68,7 +68,6 @@ import {
 } from "@mui/icons-material";
 
 import { motion, AnimatePresence } from "framer-motion";
-import Footer from "../components/footer";
 import ResponsiveHeader from "../components/AdminHeader";
 
 const API_BASE_URL = "http://localhost:4000";
@@ -123,13 +122,13 @@ const validationSchema = yup.object({
     .required("Password is required")
 });
 
-const CaptainDetailsDialog = ({ 
-  open, 
-  onClose, 
-  captain, 
-  team, 
-  members, 
-  loading 
+const CaptainDetailsDialog = ({
+  open,
+  onClose,
+  captain,
+  team,
+  members,
+  loading
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -173,8 +172,8 @@ const CaptainDetailsDialog = ({
       <DialogTitle style={{ paddingBottom: 8, background: 'linear-gradient(45deg, #2196f320, #9c27b020)' }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box display="flex" alignItems="center" gap={2}>
-            <Avatar 
-              src={captain.image} 
+            <Avatar
+              src={captain.image}
               style={{ width: 48, height: 48, backgroundColor: '#2196f3' }}
             >
               {captain.name?.charAt(0)}
@@ -266,9 +265,9 @@ const CaptainDetailsDialog = ({
                       <Typography variant="body2" style={{ color: '#666', minWidth: 120 }}>
                         Payment Status:
                       </Typography>
-                      <Chip 
-                        label={captain.paymentStatus || 'Pending'} 
-                        size="small" 
+                      <Chip
+                        label={captain.paymentStatus || 'Pending'}
+                        size="small"
                         color={getStatusColor(captain.paymentStatus)}
                         variant="outlined"
                       />
@@ -297,10 +296,10 @@ const CaptainDetailsDialog = ({
                     <SportsIcon /> Team Details
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
-                  
+
                   {team ? (
                     <Grid container spacing={{ xs: 2, md: 13.4 }}>
-  
+
                       {/* TEAM NAME - FULL WIDTH */}
                       <Grid item xs={12}>
                         <Typography
@@ -517,15 +516,15 @@ const CaptainDetailsDialog = ({
       </Box>
     )}
   </Paper>
-</Grid> 
-            </Grid> 
-          )}  
-        </DialogContent>  
-          
+</Grid>
+            </Grid>
+          )}
+        </DialogContent>
+
 
       <DialogActions style={{ padding: 16, background: '#f5f5f5' }}>
-        <Button 
-          onClick={onClose} 
+        <Button
+          onClick={onClose}
           variant="outlined"
           size={isMobile ? "small" : "medium"}
         >
@@ -540,7 +539,7 @@ export default function CaptainsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery('(max-width:600px)');
   const isTablet = useMediaQuery('(max-width:900px)');
-  
+
   const [captains, setCaptains] = useState([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -558,14 +557,14 @@ export default function CaptainsPage() {
     paid: 0,
     pending: 0
   });
-  
+
   const [teamData, setTeamData] = useState({
     team: null,
     members: []
   });
   const [teamsLoading, setTeamsLoading] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  
+
   const [actionMenuAnchor, setActionMenuAnchor] = useState(null);
   const [selectedCaptainForAction, setSelectedCaptainForAction] = useState(null);
 
@@ -663,9 +662,9 @@ export default function CaptainsPage() {
       setSelectedCaptain(captain);
       setTeamsLoading(true);
       setDetailsDialogOpen(true);
-      
+
       const res = await API.get(`/admin/captain/${captain._id}/team`);
-      
+
       if (res.data.success) {
         setSelectedCaptain(res.data.captain);
         setTeamData({
@@ -673,7 +672,7 @@ export default function CaptainsPage() {
           members: res.data.members || []
         });
       }
-      
+
     } catch (err) {
       showSnackbar("Failed to fetch team details", "error");
       console.error("Fetch teams error:", err);
@@ -769,8 +768,8 @@ export default function CaptainsPage() {
           <Stack spacing={2}>
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <Box display="flex" alignItems="center" style={{ flex: 1 }}>
-                <Avatar 
-                  src={captain.image} 
+                <Avatar
+                  src={captain.image}
                   style={{ marginRight: 16, width: 50, height: 50, backgroundColor: '#2196f3' }}
                 >
                   {captain.name?.charAt(0)}
@@ -839,7 +838,7 @@ export default function CaptainsPage() {
           transition={{ duration: 0.5 }}
         >
           {/* RESPONSIVE HEADER */}
-          <ResponsiveHeader 
+          <ResponsiveHeader
             title="CDS Premier League"
             subtitle="Team Captains Management"
           />
@@ -963,8 +962,8 @@ export default function CaptainsPage() {
                           >
                             <TableCell>
                               <Box display="flex" alignItems="center">
-                                <Avatar 
-                                  src={c.image} 
+                                <Avatar
+                                  src={c.image}
                                   style={{ marginRight: 16, width: 48, height: 48 }}
                                 >
                                   {c.name?.charAt(0)}
@@ -986,9 +985,9 @@ export default function CaptainsPage() {
                             <TableCell align="center">
                               <Box display="flex" gap={1} justifyContent="center" flexWrap="wrap">
                                 <Tooltip title="View Details">
-                                  <IconButton 
-                                    color="info" 
-                                    onClick={() => viewDetails(c)} 
+                                  <IconButton
+                                    color="info"
+                                    onClick={() => viewDetails(c)}
                                     size="medium"
                                     style={{ backgroundColor: 'rgba(33, 150, 243, 0.1)' }}
                                   >
@@ -996,7 +995,7 @@ export default function CaptainsPage() {
                                   </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Delete">
-                                  <IconButton 
+                                  <IconButton
                                     color="error"
                                     onClick={() => handleDelete(c._id)}
                                     size="medium"
@@ -1045,7 +1044,7 @@ export default function CaptainsPage() {
                     </Box>
                   ) : (
                     paginated.map((captain, index) => (
-                      <MobileCaptainCard 
+                      <MobileCaptainCard
                         key={captain._id || index}
                         captain={captain}
                         index={index}
@@ -1070,10 +1069,10 @@ export default function CaptainsPage() {
               </Box>
             )}
 
-            <Dialog 
-              open={openDialog} 
-              onClose={() => setOpenDialog(false)} 
-              maxWidth="sm" 
+            <Dialog
+              open={openDialog}
+              onClose={() => setOpenDialog(false)}
+              maxWidth="sm"
               fullWidth
               fullScreen={isMobile}
               PaperProps={{
@@ -1189,7 +1188,7 @@ export default function CaptainsPage() {
           </Box>
         </Container>
       </motion.div>
-      <Footer />  
+
     </>
   );
 }

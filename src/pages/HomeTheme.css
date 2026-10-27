@@ -1,0 +1,128 @@
+/* Color theme only: original typography and responsive layout live in Home.css. */
+body:has(.crickt-home) { background: #f8fafc; }
+.crickt-home {
+  --ck-lime: #93c5fd;
+  --ck-navy: #070d24;
+  --home-blue: #2563eb;
+  --home-indigo: #4f46e5;
+  --home-ink: #0f172a;
+  --home-muted: #64748b;
+  background: #f8fafc;
+}
+.crickt-home .ck-button,
+.crickt-home .ck-join .ck-button,
+body:has(.crickt-home) .site-header .site-book-button {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb 50%, #4f46e5);
+  color: #fff;
+  border: 1px solid #ffffff29;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px #2563eb30;
+}
+.crickt-home .ck-button:hover { box-shadow: 0 12px 30px #2563eb50; }
+.crickt-home :focus-visible { outline-color: #60a5fa; }
+
+/* Keep the cricket scene, with the reference's navy and blue atmosphere. */
+.crickt-home .ck-scroll-hero { background: #070d24; }
+.crickt-home .ck-scroll-hero .ck-stadium {
+  background: linear-gradient(90deg, #070d24ed, #0b143794 55%, #1e1b4b80), url('/image/crickt-empty-stadium.png') center / cover;
+}
+.crickt-home .ck-diagonal { background: linear-gradient(160deg, #2563eb20, #4f46e508); }
+.crickt-home .ck-diagonal-two { background: #4f46e510; }
+.crickt-home .ck-copy h1 > span:last-child { color: #93c5fd; }
+.crickt-home .ck-eyebrow { color: #bfdbfe; }
+.crickt-home .ck-eyebrow > span { background: #60a5fa; }
+.crickt-home .ck-description { color: #cbd5e1; }
+.crickt-home .cds-promo-link { color: #bfdbfe; }
+.crickt-home .ck-scroll-progress { background: #ffffff14; }
+.crickt-home .ck-scroll-progress span { background: linear-gradient(90deg, #2563eb, #818cf8); }
+.crickt-home .ck-hero-ticker { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
+.crickt-home .ck-ticker-star { color: #2563eb; }
+.crickt-home .ck-shot-data, .crickt-home .ck-bat-analysis { color: #dbeafe; }
+
+/* White floating navigation with blue actions. */
+body:has(.crickt-home) .site-header {
+  background: #fffffff2;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 12px 36px #0f172a14;
+}
+body:has(.crickt-home) .site-brand { color: #0f172a; }
+body:has(.crickt-home) .site-brand small { color: #64748b; }
+body:has(.crickt-home) .site-navigation a { color: #475569; }
+body:has(.crickt-home) .site-navigation a:hover,
+body:has(.crickt-home) .site-navigation .is-active { color: #2563eb; }
+body:has(.crickt-home) .site-navigation .is-active::after { background: #2563eb; }
+body:has(.crickt-home) .site-navigation.is-open { background: #fff; border-color: #e2e8f0; }
+
+/* Consistent slate surfaces and blue, indigo, cyan and amber card accents. */
+.crickt-home .cds-home-content { background: #f8fafc; color: #0f172a; }
+.crickt-home .cds-league-strip { background: #fff; border-color: #e2e8f0; }
+.crickt-home .cds-league-strip > div { border-color: #e2e8f0; }
+.crickt-home .cds-league-strip span { color: #64748b; }
+.crickt-home .cds-league-strip strong { color: #0f172a; }
+.crickt-home .cds-league-strip > a { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.crickt-home .ck-kicker { color: #2563eb; }
+.crickt-home .ck-kicker::before { background: #60a5fa; }
+.crickt-home .ck-section-heading > p { border-left-color: #bfdbfe; }
+.crickt-home .ck-section-heading h2 em,
+.crickt-home .cds-stadium-copy h2 em { color: #2563eb; }
+.crickt-home .ck-section-heading > p,
+.crickt-home .cds-stadium-copy > p:not(.ck-kicker),
+.crickt-home .cds-info-card p,
+.crickt-home .cds-gallery-card p,
+.crickt-home .cds-video-card p { color: #64748b; }
+.crickt-home .cds-info-card:nth-child(4n+1) {
+  --card-accent: #93c5fd; --card-wash: #eff6ff; --card-deep-wash: #dbeafe;
+  --card-shadow: #2563eb22; --card-icon: #2563eb;
+}
+.crickt-home .cds-info-card:nth-child(4n+2) {
+  --card-accent: #a5b4fc; --card-wash: #eef2ff; --card-deep-wash: #e0e7ff;
+  --card-shadow: #4f46e522; --card-icon: #4f46e5;
+}
+.crickt-home .cds-info-card:nth-child(4n+3) {
+  --card-accent: #67e8f9; --card-wash: #ecfeff; --card-deep-wash: #cffafe;
+  --card-shadow: #0891b222; --card-icon: #0891b2;
+}
+.crickt-home .cds-info-card:nth-child(4n+4) {
+  --card-accent: #fdba74; --card-wash: #fff7ed; --card-deep-wash: #ffedd5;
+  --card-shadow: #ea580c22; --card-icon: #c2410c;
+}
+.crickt-home .cds-info-card { border-radius: 20px; border-color: color-mix(in srgb, var(--card-accent) 35%, white); }
+.crickt-home .cds-slot-card dl,
+.crickt-home #highlights { border-color: #e2e8f0; }
+.crickt-home .cds-slot-card dt { color: #64748b; }
+.crickt-home .cds-stadium-section { background: #eef2ff; border-color: #e0e7ff; }
+.crickt-home .cds-stadium-copy li { border-color: #dbe3f4; }
+.crickt-home .cds-stadium-copy li svg { color: #2563eb; }
+.crickt-home .cds-stadium-copy small { color: #64748b; }
+.crickt-home .cds-stadium-photo { background: #0b1437; }
+.crickt-home .cds-photo-caption { color: #e2e8f0; }
+.crickt-home .cds-photo-caption button { color: #93c5fd; }
+.crickt-home .cds-stadium-tabs button { color: #cbd5e1; }
+.crickt-home .cds-stadium-tabs button[aria-pressed=true] { color: #fff; background: #2563eb; border-color: #60a5fa; }
+.crickt-home .cds-gallery-card > a > span { background: #0b1437; color: #f8fafc; }
+.crickt-home .cds-gallery-card > a > span svg { color: #93c5fd; }
+.crickt-home .cds-video-card:nth-child(odd) { --media-accent: #93c5fd; --media-wash: #eff6ff; --media-glow: #2563eb24; }
+.crickt-home .cds-video-card:nth-child(even) { --media-accent: #a5b4fc; --media-wash: #eef2ff; --media-glow: #4f46e524; }
+.crickt-home .cds-video-card { border-color: #e2e8f0; }
+.crickt-home .cds-video-card > .cds-card-tag { color: #2563eb; }
+
+/* Closing registration panel and footer echo the reference hero. */
+.crickt-home .ck-join.ck-join--3d {
+  background: radial-gradient(ellipse at 100% 0%, #4f46e54d, transparent 65%), linear-gradient(135deg, #070d24, #0f1b4d);
+  color: #fff;
+  border: 1px solid #334155;
+}
+.crickt-home .ck-join .ck-kicker { color: #93c5fd; }
+.crickt-home .ck-join p:not(.ck-kicker) { color: #cbd5e1; }
+.crickt-home .ck-join .cds-text-link { color: #bfdbfe; }
+.crickt-home .ck-join__grid { background-image: linear-gradient(#94a3b815 1px, transparent 0), linear-gradient(90deg, #94a3b815 1px, transparent 0); }
+body:has(.crickt-home) .site-footer { background: #070d24; color: #94a3b8; border-color: #1e293b; }
+body:has(.crickt-home) .site-footer h2,
+body:has(.crickt-home) .site-footer .site-footer-cta,
+body:has(.crickt-home) .site-footer a:hover { color: #93c5fd; }
+body:has(.crickt-home) .site-footer-bottom { border-color: #1e293b; }
+body:has(.crickt-home) .cursor-outer { border-color: #2563eb; box-shadow: 0 0 12px #2563eb22; }
+body:has(.crickt-home) .cursor-inner { background-color: #2563eb; box-shadow: 0 0 8px #2563eb40; }
+body:has(.crickt-home) .cursor-outer.cursor-hover { background-color: #2563eb12; border-color: #60a5fa; }
+body:has(.crickt-home) .cursor-inner.cursor-invert { background-color: #60a5fa26 !important; box-shadow: 0 0 0 1.5px #60a5fa55, 0 0 30px #2563eb20; }

@@ -1,13 +1,6 @@
 import "./gallery.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Header from '../pages/components/header';
-import Footer from '../pages/components/footer';
-
-
-
-
-
 const Gallery = () => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(null);
@@ -105,7 +98,7 @@ const Gallery = () => {
 
   window.addEventListener("keydown", handleKeyDown);
 
-  
+
 
   return () => {
     window.removeEventListener("keydown", handleKeyDown);
@@ -169,7 +162,7 @@ const Gallery = () => {
 
   return (
     <>
-      <Header/>
+
       <div className="gallery-home-container">
         {/* 🔹 GALLERY */}
         <section className="gallery-gallery-page">
@@ -221,7 +214,7 @@ const Gallery = () => {
           </div>
         )}
       </div>
-      <Footer/>
+
     </>
   );
 };

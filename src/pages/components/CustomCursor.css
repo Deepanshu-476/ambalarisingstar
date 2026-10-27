@@ -1,0 +1,137 @@
+/* ============================================================
+   CDS SIGNATURE GREEN CUSTOM CURSOR & INTERACTIVE WORD ZOOM
+   ============================================================ */
+
+.mouseCursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translateZ(0);
+  visibility: visible;
+  z-index: 99999999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.mouseCursor.is-active {
+  opacity: 1;
+}
+
+/* 1. Outer Ring (Stadium Green Border + Soft Shadow) */
+.cursor-outer {
+  width: 36px;
+  height: 36px;
+  margin-left: -18px;
+  margin-top: -18px;
+  border: 1.5px solid #527d3c;
+  box-shadow: 0 0 10px rgba(82, 125, 60, 0.22), inset 0 0 4px rgba(82, 125, 60, 0.1);
+  box-sizing: border-box;
+  background-color: transparent;
+  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              height 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              margin 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s ease,
+              background-color 0.25s ease,
+              box-shadow 0.25s ease,
+              opacity 0.2s ease;
+}
+
+/* 2. Inner Dot (Solid Stadium Green with Shadow) */
+.cursor-inner {
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  margin-top: -5px;
+  background-color: #527d3c;
+  box-shadow: 0 0 8px rgba(82, 125, 60, 0.5);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              margin 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 0.25s ease,
+              box-shadow 0.25s ease,
+              opacity 0.25s ease;
+}
+
+/* Tactile Click feedback */
+.cursor-outer.cursor-clicking {
+  transform: scale(0.82) !important;
+}
+
+.cursor-inner.cursor-clicking {
+  transform: scale(0.65) !important;
+}
+
+/* 3. Link & Button Hover State (Soft Green Glass Ring) */
+.cursor-outer.cursor-hover {
+  width: 52px;
+  height: 52px;
+  margin-left: -26px;
+  margin-top: -26px;
+  border-color: #527d3c;
+  background-color: rgba(82, 125, 60, 0.08);
+  box-shadow: 0 0 20px rgba(82, 125, 60, 0.2);
+}
+
+.cursor-inner.cursor-hover {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 4. Heading / Word Hover State - Translucent Lime Highlight Lens */
+.cursor-inner.cursor-invert {
+  width: 140px !important;
+  height: 140px !important;
+  margin-left: -70px !important;
+  margin-top: -70px !important;
+  background-color: rgba(196, 246, 106, 0.22) !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 1.5px rgba(135, 177, 82, 0.4), 0 0 30px rgba(135, 177, 82, 0.16);
+}
+
+.cursor-outer.cursor-invert {
+  opacity: 0 !important;
+  transform: scale(0.3);
+}
+
+/* ============================================================
+   5. INTERACTIVE WORD ZOOM EFFECT (MAGNETIC SCALING ON HOVER)
+   ============================================================ */
+
+.cds-zoom-phrase {
+  display: inline;
+}
+
+.cds-zoom-word-wrap {
+  display: inline-block;
+  white-space: pre;
+}
+
+.cds-zoom-word {
+  display: inline-block;
+  cursor: pointer;
+  transform: scale(1) translateZ(0);
+  transform-origin: center 80%;
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+              color 0.18s ease,
+              text-shadow 0.18s ease;
+  will-change: transform;
+}
+
+.cds-zoom-word:hover {
+  transform: scale(1.116) translateY(-3px) translateZ(0);
+  position: relative;
+  z-index: 10;
+  text-shadow: 0 4px 18px rgba(82, 125, 60, 0.18);
+}
+
+/* Disable custom cursor on touch devices */
+@media (pointer: coarse) {
+  .mouseCursor {
+    display: none !important;
+  }
+}

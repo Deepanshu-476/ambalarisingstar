@@ -1,319 +1,82 @@
-:root {
-  --cricket-green: #006400;
-  --cricket-blue: #00308F;
-  --cricket-gold: #FFD700;
-  --nav-white: #ffffff;
-  --nav-shadow: rgba(0, 0, 0, 0.1);
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap');
+.site-header{background:#080f1d;color:#fff;font-family:'Barlow',Arial,sans-serif;width:100%;position:relative;z-index:50;border-bottom:1px solid #ffffff12;box-sizing:border-box}
+.site-header *{box-sizing:border-box}.site-header-hero{background:transparent}.site-header-inner{height:90px;max-width:1440px;margin:auto;padding:0 6%;display:flex;align-items:center;justify-content:space-between;gap:24px}.site-header a{text-decoration:none;color:inherit}.site-brand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:800;line-height:1;white-space:nowrap}.site-brand img{width:43px;height:43px;object-fit:contain;border-radius:50%}.site-brand small{display:block;margin-top:5px;font-size:7px;font-weight:600;letter-spacing:1.3px}.site-navigation{display:flex;align-items:center;gap:25px}.site-navigation a{font-size:10px;font-weight:700;letter-spacing:1px;padding:12px 0;position:relative}.site-navigation a:hover,.site-navigation .is-active{color:#c4f66a}.site-navigation .is-active:after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#c4f66a}.site-header .site-book-button{display:inline-flex;align-items:center;gap:22px;padding:13px 18px;background:linear-gradient(100deg,#c8f478,#b0e9a0);color:#101b20;font-size:10px;font-weight:800;letter-spacing:1px;border-radius:2px;white-space:nowrap}.site-book-button:hover{filter:brightness(1.08)}.site-menu-toggle{display:none}.site-header :focus-visible{outline:2px solid #c4f66a;outline-offset:5px}
+@media(max-width:1000px){.site-header-inner{gap:15px;padding:0 4%}.site-navigation{gap:14px}.site-navigation a{font-size:9px}.site-brand small{font-size:6px;letter-spacing:.7px}.site-header .site-book-button{gap:10px;padding:12px}}
+@media(max-width:760px){.site-header-inner{height:80px;padding:0 6%}.site-menu-toggle{display:grid;place-items:center;background:none;border:0;color:#fff;padding:10px;margin-left:auto;cursor:pointer}.site-header .site-book-button{display:none}.site-navigation{display:none;position:absolute;top:80px;left:0;right:0;padding:20px 6%;background:#0b1628;box-shadow:0 8px 18px #0003}.site-navigation.is-open{display:flex;align-items:flex-start;flex-direction:column;gap:8px}.site-navigation a{font-size:12px;width:100%}}
+
+/* Keep the shared navigation visible across the complete page. */
+.site-header{position:fixed;top:0;left:0;right:0;z-index:900;transition:background-color .2s,box-shadow .2s}
+.site-header.is-scrolled{background:rgba(8,15,29,.96);backdrop-filter:blur(14px);box-shadow:0 4px 20px #0003}
+.site-header-spacer{height:90px}
+html{scroll-padding-top:106px}
+.cds-content-section{scroll-margin-top:106px}
+@media(max-width:760px){.site-header-spacer{height:80px}html{scroll-padding-top:96px}.cds-content-section{scroll-margin-top:96px}}
+
+/* Rounded floating navigation, shared across all routes. */
+.site-header,
+.site-header-hero,
+.site-header.is-scrolled {
+  top: 18px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(1550px, calc(100% - 64px));
+  border: 1px solid rgba(255,255,255,.65);
+  border-radius: 24px;
+  background: rgba(244,246,249,.95);
+  color: #172335;
+  box-shadow: 0 8px 30px rgba(8,15,29,.1);
+  backdrop-filter: blur(16px);
 }
-
-/* ================= HEADER ================= */
-
-.header {
-  background: var(--nav-white);
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  box-shadow: 0 2px 15px var(--nav-shadow);
-  border-bottom: 3px solid var(--cricket-gold);
+.site-header.is-scrolled { box-shadow: 0 10px 34px rgba(8,15,29,.16); }
+.site-header-inner { height: 82px; max-width: none; padding: 0 24px; gap: 24px; }
+.site-brand { color: #172335; }
+.site-brand small { color: #526176; }
+.site-navigation { gap: clamp(16px,2vw,32px); }
+.site-navigation a { color: #526176; font-size: 12px; letter-spacing: .5px; }
+.site-navigation a:hover, .site-navigation .is-active { color: #172335; }
+.site-navigation .is-active::after { background: #8ea967; border-radius: 2px; }
+.site-header .site-book-button { border-radius: 999px; padding: 16px 22px; }
+.site-header :focus-visible { outline-color: #668548; }
+.site-header-spacer { height: 118px; }
+html { scroll-padding-top: 130px; }
+.cds-content-section { scroll-margin-top: 130px; }
+@media(max-width:1100px) {
+  .site-header-inner { padding: 0 18px; gap: 16px; }
+  .site-navigation { gap: 14px; }
+  .site-navigation a { font-size: 10px; }
+  .site-header .site-book-button { gap: 10px; padding: 14px; }
 }
-
-.header-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 16px;
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-}
-
-/* ================= LEFT (LOGO) ================= */
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.logo {
-  width: 100px;
-  height: 80px;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo img {
-  width: 98%;
-  height: 98%;
-  object-fit: cover;
-}
-
-/* ================= CENTER (TITLE) ================= */
-
-.title-section {
-  flex: 1;
-  text-align: center;
-  padding: 0 15px;
-  min-width: 0; /* Important for text truncation */
-}
-
-.main-title {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--cricket-blue);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-.sub-title {
-  font-size: 0.8rem;
-  color: var(--cricket-green);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-/* ================= RIGHT BUTTONS ================= */
-
-.desktop-buttons {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.login-btn {
-  background: linear-gradient(45deg, var(--cricket-blue), #001f4d);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  padding: 10px 20px;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 48, 143, 0.3);
-}
-
-.login-bnt-padding {
-  margin-right: 0;
-}
-
-/* ================= MOBILE MENU ================= */
-
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  z-index: 1001;
-}
-
-.menu-icon {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 24px;
-  height: 18px;
-}
-
-.menu-icon span {
-  display: block;
-  height: 2px;
-  width: 100%;
-  background-color: var(--cricket-blue);
-  transition: all 0.3s ease;
-}
-
-.menu-icon.open span:nth-child(1) {
-  transform: rotate(45deg) translate(6px, 6px);
-}
-
-.menu-icon.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.menu-icon.open span:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -6px);
-}
-
-.mobile-menu-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--nav-white);
-  box-shadow: 0 4px 15px var(--nav-shadow);
-  border-top: 2px solid var(--cricket-gold);
-  z-index: 999;
-}
-
-.mobile-menu-item {
-  width: 100%;
-  padding: 15px 20px;
-  border: none;
-  background: none;
-  color: var(--cricket-blue);
-  font-size: 1rem;
-  text-align: left;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.3s ease;
-}
-
-.mobile-menu-item:hover {
-  background: #f8f9fa;
-}
-
-/* ================= RESPONSIVE BREAKPOINTS ================= */
-
-/* Tablet (768px - 1024px) */
-@media (max-width: 1024px) {
-  .header-container {
-    padding: 0 12px;
+@media(max-width:760px) {
+  .site-header, .site-header-hero, .site-header.is-scrolled {
+    top: 12px; width: calc(100% - 24px); border-radius: 20px;
   }
-  
-  .logo {
-    width: 80px;
-    height: 65px;
+  .site-header-inner { height: 72px; padding: 0 16px; }
+  .site-menu-toggle { color: #172335; }
+  .site-navigation {
+    top: calc(100% + 8px); border-radius: 20px;
+    padding: 16px 22px; background: #f4f6f9;
+    border: 1px solid #dce3eb; box-shadow: 0 12px 28px #080f1d20;
   }
-  
-  .main-title {
-    font-size: 1.2rem;
-  }
-  
-  .sub-title {
-    font-size: 0.75rem;
-  }
-  
-  .login-btn {
-    font-size: 0.8rem;
-    padding: 8px 16px;
+  .site-navigation a { font-size: 12px; padding: 12px 0; }
+  .site-header-spacer { height: 102px; }
+  html { scroll-padding-top: 114px; }
+  .cds-content-section { scroll-margin-top: 114px; }
+}
+
+/* Bring the menu closer to the logo and booking action. */
+@media(min-width:1101px) {
+  .site-header-inner {
+    justify-content: center;
+    gap: clamp(24px, 4vw, 76px);
   }
 }
 
-/* Mobile Landscape (576px - 768px) */
-@media (max-width: 768px) {
-  .header-container {
-    height: 70px;
-    padding: 0 10px;
+/* Fit the floating shell around its contents without empty side wings. */
+@media(min-width:1101px) {
+  .site-header, .site-header-hero, .site-header.is-scrolled {
+    width: max-content;
+    max-width: calc(100% - 48px);
   }
-  
-  .logo {
-    width: 60px;
-    height: 50px;
-  }
-  
-  .main-title {
-    font-size: 1rem;
-  }
-  
-  .sub-title {
-    font-size: 0.7rem;
-  }
-  
-  .desktop-buttons {
-    display: none;
-  }
-  
-  .mobile-menu-btn {
-    display: block;
-  }
-  
-  .mobile-menu-dropdown {
-    display: block;
-  }
-  
-  .title-section {
-    padding: 0 10px;
-  }
-}
-
-/* Mobile Portrait (480px - 576px) */
-@media (max-width: 576px) {
-  .header-container {
-    height: 60px;
-  }
-  
-  .logo {
-    width: 50px;
-    height: 40px;
-  }
-  
-  .main-title {
-    font-size: 0.9rem;
-    line-height: 1.1;
-  }
-  
-  .sub-title {
-    font-size: 0.65rem;
-    line-height: 1.1;
-  }
-}
-
-/* Small Mobile (< 480px) */
-@media (max-width: 480px) {
-  .header-container {
-    padding: 0 8px;
-  }
-  
-  .main-title {
-    font-size: 0.8rem;
-  }
-  
-  .sub-title {
-    font-size: 0.6rem;
-  }
-  
-  .mobile-menu-item {
-    font-size: 0.9rem;
-    padding: 12px 16px;
-  }
-}
-
-/* Extra Small Mobile (< 360px) */
-@media (max-width: 360px) {
-  .main-title {
-    font-size: 0.75rem;
-  }
-  
-  .sub-title {
-    font-size: 0.55rem;
-  }
-  
-  .logo {
-    width: 45px;
-    height: 36px;
-  }
-}
-
-/* ================= PRINT STYLES ================= */
-@media print {
-  .header {
-    position: static;
-    box-shadow: none;
-  }
-  
-  .mobile-menu-btn,
-  .login-btn {
-    display: none;
-  }
+  .site-header-inner { padding-inline: 24px; }
 }

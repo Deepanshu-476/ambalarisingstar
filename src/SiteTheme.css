@@ -1,0 +1,126 @@
+/* Shared visual system for public pages, registration and native forms. */
+html, body, #root { min-height: 100%; margin: 0; }
+.cds-app { --site-blue: #2563eb; --site-indigo: #4f46e5; --site-navy: #070d24; --site-ink: #0f172a; --site-muted: #64748b; background: #f8fafc; min-height: 100svh; font-family: 'Barlow', Arial, sans-serif; color: #0f172a; }
+.cds-app *, .cds-app *::before, .cds-app *::after { box-sizing: border-box; }
+.app-route { min-width: 0; }
+.page-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.8px; color: #2563eb; }
+.cds-app .site-header, .cds-app .site-header.is-scrolled { color: #0f172a; background: #fffffff2; border-color: #e2e8f0; box-shadow: 0 12px 36px #0f172a14; }
+.cds-app .site-navigation a { color: #475569; }
+.cds-app .site-navigation a:hover, .cds-app .site-navigation .is-active { color: #2563eb; }
+.cds-app .site-navigation .is-active::after { background: #2563eb; }
+.site-header-actions { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+.cds-app .site-header-inner { gap: clamp(18px, 2vw, 36px); }
+.site-header .site-login-button { color: #2563eb; font-size: 11px; font-weight: 700; letter-spacing: .6px; padding: 12px 0; }
+.cds-app .site-header .site-book-button { background: linear-gradient(135deg, #1d4ed8, #2563eb 50%, #4f46e5); color: #fff; box-shadow: 0 6px 20px #2563eb26; }
+.cds-app .site-navigation.is-open { background: #fff; border-color: #e2e8f0; }
+.cds-app .site-header :focus-visible { outline-color: #60a5fa; }
+.cds-app .site-footer { background: #070d24; color: #94a3b8; border-color: #1e293b; }
+.cds-app .site-footer h2, .cds-app .site-footer .site-footer-cta, .cds-app .site-footer a:hover { color: #93c5fd; }
+.cds-app .site-footer-bottom { border-color: #1e293b; }
+.cds-app .cursor-outer { border-color: #2563eb; box-shadow: 0 0 12px #2563eb22; }
+.cds-app .cursor-inner { background: #2563eb; box-shadow: 0 0 8px #2563eb40; }
+.cds-app .cursor-outer.cursor-hover { background: #2563eb12; border-color: #60a5fa; }
+.cds-app .cursor-inner.cursor-invert { background: #60a5fa26 !important; box-shadow: 0 0 0 1.5px #60a5fa55, 0 0 30px #2563eb20; }
+
+/* Gallery keeps its established grid and lightbox behavior. */
+.cds-app .gallery-gallery-page { --cricket-green: #2563eb; --cricket-blue: #1e3a8a; --cricket-gold: #93c5fd; --cricket-cream: #f8fafc; background: radial-gradient(ellipse at 100% 0%, #e0e7ff, transparent 45%), #f8fafc; padding-top: 50px; }
+.cds-app .gallery-page-title { color: #0f172a; font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-size: clamp(36px, 4.5vw, 64px); line-height: 1.05; }
+.cds-app .gallery-page-subtitle, .cds-app .gallery-section-subtitle { color: #64748b; line-height: 1.8; }
+.cds-app .gallery-section-title { color: #1e3a8a; border-color: #60a5fa; font-family: 'Barlow Condensed', sans-serif; font-size: 32px; }
+.cds-app .gallery-gallery-card { border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 8px 28px #0f172a0c; }
+.cds-app .gallery-gallery-card:hover { box-shadow: 0 16px 40px #2563eb20; }
+
+/* Public information and legal pages. */
+.contact-page { max-width: 1240px; margin: auto; padding: 64px 6% 90px; }
+.contact-intro { max-width: 640px; margin-bottom: 40px; }
+.contact-intro h1 { font: italic 800 clamp(44px, 5vw, 68px)/1 'Barlow Condensed', sans-serif; margin: 16px 0 22px; color: #0f172a; }
+.contact-intro h1 em { color: #2563eb; }
+.contact-intro > p:last-child { color: #64748b; font-size: 16px; line-height: 1.8; }
+.contact-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.contact-card { padding: 30px; border: 1px solid #e2e8f0; border-radius: 22px; background: #fff; box-shadow: 0 8px 30px #0f172a05; overflow-wrap: anywhere; }
+.contact-card > svg { color: #2563eb; padding: 12px; width: 50px; height: 50px; border-radius: 15px; background: #eff6ff; }
+.contact-card h2 { font-size: 20px; margin: 24px 0 12px; }
+.contact-card p { color: #64748b; line-height: 1.8; font-size: 14px; }
+.contact-card a { color: #2563eb; font-weight: 600; text-decoration: none; font-size: 14px; }
+.contact-note { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; margin-top: 30px; background: linear-gradient(135deg, #0b1437, #0f1b4d); color: #fff; border-radius: 22px; padding: 30px; }
+.contact-note h2 { margin: 0 0 10px; font-size: 24px; }
+.contact-note p { color: #cbd5e1; margin: 0; font-size: 14px; }
+.contact-note a { background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; display: inline-flex; align-items: center; gap: 24px; border-radius: 999px; padding: 15px 22px; text-decoration: none; font-size: 12px; font-weight: 700; }
+.app-public-page > .container { width: calc(100% - 40px); max-width: 940px; margin: 36px auto 72px; padding: clamp(24px, 5vw, 60px); border: 1px solid #e2e8f0; border-radius: 24px; background: #fff; box-shadow: 0 12px 40px #0f172a08; color: #475569; line-height: 1.9; }
+.app-public-page > .container h1 { color: #0f172a; font: italic 800 clamp(34px, 4vw, 52px)/1.1 'Barlow Condensed', sans-serif; margin: 0 0 24px; }
+.app-public-page > .container h2 { color: #1e3a8a; margin-top: 28px; }
+.cds-app .privacy-hero { background: radial-gradient(ellipse at 100% 0%, #4f46e560, transparent 65%), linear-gradient(135deg, #070d24, #0f1b4d); }
+.cds-app .privacy-page-wrapper { background: #f8fafc; }
+
+/* Registration panels: consistent visual hierarchy without changing steps. */
+.app-form-page { min-height: 100svh; background: radial-gradient(ellipse at 0 0, #2563eb1c, transparent 45%), radial-gradient(ellipse at 100% 100%, #4f46e514, transparent 45%), #f8fafc; }
+.app-form-page .registration-page, .app-form-page .jpl-app-container { background: transparent !important; padding: 40px 20px !important; min-height: 100svh; }
+.app-form-page .registration-shell, .app-form-page .jpl-registration-container { border: 1px solid #e2e8f0; border-radius: 26px !important; background: #fff; box-shadow: 0 20px 60px #0f172a0e !important; }
+.app-form-page .registration-intro, .app-form-page .jpl-header-section { background: radial-gradient(ellipse at 100% 0%, #4f46e560, transparent 65%), linear-gradient(135deg, #070d24, #0f1b4d) !important; padding: 90px 30px 38px !important; color: #fff; }
+.app-form-page .registration-intro h1, .app-form-page .jpl-title { color: #fff; font: italic 800 clamp(30px, 4vw, 44px)/1.1 'Barlow Condensed', sans-serif !important; }
+.app-form-page .registration-intro p, .app-form-page .jpl-subtitle { color: #bfdbfe; }
+.app-form-page .registration-panel, .app-form-page .jpl-form-section { background: #fff !important; padding: 26px !important; border: 1px solid #e2e8f0 !important; border-radius: 18px !important; }
+.app-form-page .registration-field, .app-form-page .jpl-form-group { min-width: 0; }
+.app-form-page .registration-content, .app-form-page .jpl-content-wrapper { padding: 32px !important; }
+.app-form-page .registration-upload, .app-form-page .jpl-file-upload-label { border: 1.5px dashed #93c5fd !important; background: #eff6ff !important; border-radius: 14px !important; }
+.app-form-page .jpl-step-indicator { background: #f8fafc; border-color: #e2e8f0; }
+.app-form-page .jpl-step.active { color: #2563eb; }
+.app-form-page .jpl-step-number.active { background: #2563eb; }
+.app-form-page .jpl-label, .app-form-page label { color: #334155; }
+.app-form-page .jpl-document-section { background: #f8fafc; border-color: #e2e8f0; }
+.app-form-page .jpl-document-title, .app-form-page .jpl-instruction-title { color: #1e3a8a; }
+.app-form-page .jpl-amount-badge { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+.app-form-page .jpl-info-box { background: #eff6ff; border-color: #bfdbfe; }
+.app-form-page .jpl-info-title { color: #1e3a8a; }
+.app-form-page .jpl-dashboard-button { background: #ffffff14; border: 1px solid #ffffff30; box-shadow: none; }
+.app-form-page .jpl-nav-button.next, .app-form-page .jpl-submit-btn,
+.app-form-page .registration-submit, .app-form-page .registration-next { background: linear-gradient(135deg, #2563eb, #4f46e5) !important; color: #fff !important; border-radius: 999px !important; box-shadow: 0 6px 20px #2563eb25 !important; }
+.app-form-page .registration-back { border-radius: 999px !important; }
+.app-form-page .jpl-nav-button.back { border: 1px solid #dbe3ef; background: #f8fafc; color: #475569; border-radius: 999px; }
+.cds-app .app-route form:not(.auth-form) :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), select, textarea):not(.MuiInputBase-input) {
+  border: 1px solid #dce3ee !important; border-radius: 12px !important; background: #f8fafc !important; color: #0f172a !important; padding: 13px 15px !important; font-size: 15px; max-width: 100%; transition: border-color .2s, box-shadow .2s;
+}
+.cds-app .app-route form:not(.auth-form) :is(input, select, textarea):not(.MuiInputBase-input):focus { outline: none; border-color: #60a5fa !important; box-shadow: 0 0 0 4px #2563eb14 !important; background: #fff !important; }
+.cds-app .app-route form :is(input, select, textarea):is(.error, [aria-invalid=true]):not(.MuiInputBase-input) { border-color: #ef4444 !important; box-shadow: 0 0 0 3px #ef444412 !important; }
+.cds-app .app-route form input:is([type=checkbox], [type=radio]) { accent-color: #2563eb; }
+.cds-app .app-route form:not(.auth-form) button[type=submit]:not(.MuiButton-root) { background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; border-radius: 999px; }
+.cds-app button:disabled { cursor: not-allowed; }
+
+/* Slot selection uses the same light surfaces and blue action hierarchy. */
+.cds-app .slot-booking-page { background: transparent; }
+.booking-page-intro { max-width: 1200px; margin: auto; padding: 38px 32px 20px; }
+.booking-back-link { color: #475569; padding: 10px 0; background: none; border: 0; cursor: pointer; margin-bottom: 24px; font: 500 13px 'Barlow', sans-serif; }
+.booking-page-intro h1 { font: italic 800 clamp(38px, 5vw, 56px)/1 'Barlow Condensed', sans-serif; color: #0f172a; margin: 14px 0; }
+.booking-page-intro > p:last-child { color: #64748b; font-size: 15px; }
+.cds-app .booking-section-header, .cds-app .slot-card { border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 8px 30px #0f172a06; }
+.cds-app .slot-card-header { background: #eff6ff; color: #1e3a8a; border-color: #dbeafe; }
+.cds-app .btn-book { background: linear-gradient(135deg, #2563eb, #4f46e5); border-radius: 999px; }
+.cds-app .slot-booking-page .btn-primary { background: linear-gradient(135deg, #2563eb, #4f46e5); border-color: #2563eb; color: #fff; border-radius: 999px; }
+.cds-app .modal-overlay:has(form) { background: #070d24b3; backdrop-filter: blur(8px); }
+.cds-app .modal:has(form) { border: 1px solid #e2e8f0; border-radius: 24px; box-shadow: 0 30px 90px #02061740; background: #fff; }
+.cds-app .modal:has(form) .modal-header { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
+.cds-app .modal:has(form) .form-group label { color: #334155; font-weight: 600; }
+@media(max-width:1100px) {
+  .site-header-actions { gap: 12px; }
+  .cds-app .site-header-inner { gap: 18px; }
+}
+@media(min-width:761px) and (max-width:1250px) {
+  .cds-app .site-header { width: calc(100% - 36px); }
+  .cds-app .site-header-inner { padding-inline: 18px; gap: 18px; }
+  .cds-app .site-navigation { gap: 14px; }
+  .cds-app .site-navigation a { font-size: 10px; }
+  .cds-app .site-header .site-book-button { padding: 14px; gap: 10px; }
+}
+@media(max-width:760px) {
+  .cds-app .site-header-inner { gap: 12px; }
+  .site-header-actions { gap: 0; }
+  .site-header .site-login-button { padding: 10px 12px; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; }
+  .contact-page { padding: 36px 6% 55px; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-card { padding: 24px; }
+  .app-form-page .registration-page, .app-form-page .jpl-app-container { padding: 16px 10px !important; }
+  .app-form-page .registration-content, .app-form-page .jpl-content-wrapper { padding: 18px !important; }
+  .app-form-page .registration-panel, .app-form-page .jpl-form-section { padding: 18px !important; }
+  .booking-page-intro { padding: 24px 20px 10px; }
+  .cds-app .booking-main-content { padding: 20px; }
+}

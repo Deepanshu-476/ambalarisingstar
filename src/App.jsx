@@ -1,7 +1,14 @@
-import { Routes, Route } from "react-router-dom";
+import {useEffect} from "react";
+import Header from "./pages/components/header";
+import Footer from "./pages/components/footer";
+import { Routes, Route, useLocation } from "react-router-dom";
+import CustomCursor from "./pages/components/CustomCursor";
 
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
+import Tournament from "./pages/Tournament";
+import Stadium from "./pages/Stadium";
+import MatchSlots from "./pages/MatchSlots";
 import "./App.css";
 
 // pages
@@ -23,18 +30,35 @@ import  ContactUs  from "./pages/contact/contact_us.jsx";
 import  PrivacyPolicy  from "./pages/contact/privacy_policy.jsx";
 import  RefundPolicy  from "./pages/contact/refund_policy.jsx";
 import  TermsAndConditions  from "./pages/contact/terms_and_conditions.jsx";
+import "./SiteTheme.css";
 
 // common components
 
 
 function App() {
+  const {pathname,hash}=useLocation();
+  const showSiteChrome = ['/', '/tournament', '/stadium', '/slots', '/gallery', '/contact', '/privacy', '/privacy-policy', '/refund', '/terms'].includes(pathname);
+  const isFormPage = ['/playerRegistration', '/Ambala-Rising-Star', '/book-slots'].includes(pathname);
+  useEffect(()=>{
+    if(hash){
+      const frame=requestAnimationFrame(()=>document.getElementById(hash.slice(1))?.scrollIntoView({behavior:'smooth'}));
+      return ()=>cancelAnimationFrame(frame);
+    }
+    window.scrollTo(0,0);
+  },[pathname,hash]);
   return (
-    <>
-      {/* Header har page par */}
+    <div className="cds-app">
+      <CustomCursor />
+      {showSiteChrome && <Header hero={pathname === "/"}/>}
+      {showSiteChrome && pathname !== "/" && <div className="site-header-spacer" aria-hidden="true"/>}
 
+      <main className={`app-route${isFormPage ? ' app-form-page' : ''}${showSiteChrome && pathname !== '/' ? ' app-public-page' : ''}`}>
       <Routes>
         {/* Public Pages */}
         <Route path="/" element={<Home />} />
+        <Route path="/tournament" element={<Tournament />} />
+        <Route path="/stadium" element={<Stadium />} />
+        <Route path="/slots" element={<MatchSlots />} />
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/gallery" element={<Gallery />} />
@@ -59,10 +83,11 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </main>
 
-      {/* Footer har page par */}
+      {showSiteChrome && <Footer/>}
  
-    </>
+    </div>
   );
 }
 
